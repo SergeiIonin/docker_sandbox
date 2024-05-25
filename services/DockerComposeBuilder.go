@@ -38,6 +38,11 @@ func (dcb *DockerComposeBuilder) BuildComposeFile(images []string, network strin
 		composeYaml += "\n"
 	}
 
+	composeYaml +=
+	 "networks:\n" +
+	 indent2 + network + ":\n" +
+	 indent4 + "external: true"
+
 	htmlString := strings.Replace(composeYaml, "\n", "<br>", -1)
 
 	return htmlString
