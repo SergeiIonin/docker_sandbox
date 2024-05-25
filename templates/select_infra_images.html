@@ -1,0 +1,19 @@
+<!-- templates/images.html -->
+<html>
+<body>
+    <h1>Select Infrastructure Docker Images</h1>
+    <ul>
+        {{range .}}
+        <li>
+            {{.}}
+            <form action="/containers/{{.}}/start" method="post">
+                <input type="submit" value="Start">
+            </form>
+            <form action="/containers/{{.}}/stop" method="post">
+                <input type="submit" value="Stop">
+            </form>
+        </li>
+        {{end}}
+    </ul>
+</body>
+</html>
