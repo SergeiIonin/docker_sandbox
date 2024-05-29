@@ -8,11 +8,11 @@
 
     <script>
         function createSandbox() {
-            fetch('/images/app')
+            fetch('/images')
                 .then(response => {
                     // open /images/app and nothing else
                     if (response.status === 200) {
-                        window.location.href = '/images/app';
+                        window.location.href = '/images';
                     } else {
                         console.error('Internal Server Error:', response.status);
                     }

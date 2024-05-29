@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entity Selector</title>
+    <style>
+        .entity-box {
+            display: inline-block;
+            width: 400px;
+            height: 50px;
+            margin: 10px;
+            border: 2px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .selected {
+            background-color: #d1e7dd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Select Images</h1>
+
+    <ul>
+        {{range .}}
+        <li>
+            <div class="entity-box" data-entity={{.}}>{{.}}</div>
+        </li>
+        {{end}}
+    </ul>
+
+    <button id="saveButton">Save Selected Images</button>
+
+    <script>
+        const entityBoxes = document.querySelectorAll('.entity-box');
+        const saveButton = document.getElementById('saveButton');
+        const sandbox_id = 'your_operation_id';  // Replace this with actual operation ID
+
+        entityBoxes.forEach(box => {
+            box.addEventListener('click', () => {
+                box.classList.toggle('selected');
+            });
+        });
+
+        saveButton.addEventListener('click', () => {
+            const selectedImages = [];
+            entityBoxes.forEach(box => {
+                if (box.classList.contains('selected')) {
+                    selectedImages.push(box.getAttribute('data-entity'));
+                }
+            });
+
+            const payload = {
+                id: sandbox_id,
+                image_names: selectedImages
+            };
+
+            fetch('/docker-services', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    window.location.href = '/docker-services';
+                } else {
+                    throw new Error('Internal Server Error:', response.status);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Error saving images.');
+            });
+        });
+    </script>
+</body>
+</html>

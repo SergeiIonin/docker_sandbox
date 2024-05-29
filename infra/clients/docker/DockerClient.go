@@ -1,4 +1,4 @@
-package services
+package docker
 
 import (
 	"log"
@@ -6,10 +6,14 @@ import (
 	"strings"
 )
 
-type DockerImageService struct {
+type DockerClient struct {
 }
 
-func (ds *DockerImageService) GetImages() []string {
+func NewDockerClient() *DockerClient {
+	return &DockerClient{}
+}
+
+func (ds *DockerClient) GetImages() []string {
 	cmd := exec.Command("docker", "image", "ls", "--format", "{{.Repository}}:{{.Tag}}")
 	output, err := cmd.Output()
 	if err != nil {
@@ -19,7 +23,7 @@ func (ds *DockerImageService) GetImages() []string {
 	return images
 }
 
-func (ds *DockerImageService) GetImagesByName(name string) []string {
+func (ds *DockerClient) GetImagesByName(name string) []string {
 	cmd := exec.Command("docker", "image", "ls", "--format", "{{.Repository}}:{{.Tag}}")
 	output, err := cmd.Output()
 	if err != nil {
@@ -27,17 +31,13 @@ func (ds *DockerImageService) GetImagesByName(name string) []string {
 	}
 	images := strings.Split(string(output), "\n")
 	var filteredImages []string
-	for _,image := range images {
+	for _, image := range images {
 		if strings.Contains(image, name) {
 			filteredImages = append(filteredImages, image)
 		}
 	}
-	for _,image := range filteredImages {
+	for _, image := range filteredImages {
 		log.Println(image)
 	}
 	return filteredImages
-}
-
-func NewDockerImageService() *DockerImageService {
-	return &DockerImageService{}
 }

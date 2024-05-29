@@ -50,8 +50,8 @@
 </head>
 <body>
     <div id="entityList">
-        {{range $index, $name := .}}
-        <div class="image-box" data-image="{{$name}}">
+        {{range $index, $name := .ImageNames}}
+        <div class="entity" data-image="{{$name}}">
             <button type="button" onclick="this.nextElementSibling.classList.toggle('hidden')">
                 {{$name}}
             </button>
@@ -60,69 +60,16 @@
                 <input type="text" id="name-{{$index}}" class="name" required>
                 <br>
                 <label for="ports-{{$index}}">Ports:</label>
-                <input type="text" id="ports-{{$index}}" class="ports">
+                <input type="text" id="ports-{{$index}}" class="ports" required>
                 <br>
-                <div id="envContainer-{{$index}}" class="envs">
+                <div id="envContainer-{{$index}}">
                     <label>ENVs:</label>
                 </div>
                 <button type="button" onclick="addEnvField({{$index}})">Add ENV</button>
-                <br>
-
             </div>
         </div>
         {{end}}
     </div>
-    <button id="saveButton" onclick="collectData()">Save Selected Images</button>
-    <script>
-        const entityBoxes = document.querySelectorAll('.image-box');
-        entityBoxes.forEach(box => {
-            box.addEventListener('click', () => {
-                box.classList.toggle('selected');
-            });
-        });
-        
-        const saveButton = document.getElementById('saveButton');
-        
-        saveButton.addEventListener('click', () => {
-            const dockerServices = [];
-            entityBoxes.forEach(box => {
-                if (box.classList.contains('selected')) {
-                    dockerService = {
-                        image: box.getAttribute('data-image'),
-                        name: box.querySelector('.name').value,
-                        ports: box.querySelector('.ports').value,
-                        envs: box.getAttribute('envs')
-                    };
-                    dockerServices.push(dockerService);
-                }
-            });
-
-            const payload = {
-                id: '123445',
-                docker_services: dockerServices
-            };
-
-            fetch('/compose/build', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            })
-            .then(response => {
-                if (response.status === 200) {
-                    return response.json();
-                } else {
-                    throw new Error('Internal Server Error:', response.status);
-                }
-            })
-            .then(data => {
-                const id = data.id;
-                console.log(id);
-                window.location.href = '/compose/' + id;
-            })
-        });
-
-    </script>    
+    <button type="button" onclick="collectData()">Collect Data</button>
 </body>
 </html>
