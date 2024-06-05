@@ -6,54 +6,54 @@ import (
 	"GoDockerSandbox/infra/clients/docker"
 )
 
-type DockerImageService struct {
+type DockerServiceManager struct {
 	dockerClient *docker.DockerClient
 	imageRepo    repo.ImageRepo
 }
 
-func NewDockerImageService(repo repo.ImageRepo) *DockerImageService {
-	return &DockerImageService{
+func NewDockerServiceManager(repo repo.ImageRepo) *DockerServiceManager {
+	return &DockerServiceManager{
 		dockerClient: docker.NewDockerClient(),
 		imageRepo:    repo,
 	}
 }
 
-func (dis *DockerImageService) GetImages() []string {
+func (dis *DockerServiceManager) GetImages() []string {
 	return dis.dockerClient.GetImages()
 }
 
-func (dis *DockerImageService) GetImagesByName(name string) []string {
+func (dis *DockerServiceManager) GetImagesByName(name string) []string {
 	return dis.dockerClient.GetImagesByName(name)
 }
 
-func (dis *DockerImageService) Get(id string) (model.Image, error) {
+func (dis *DockerServiceManager) Get(id string) (model.DockerService, error) {
 	return dis.imageRepo.Get(id)
 }
 
-func (dis *DockerImageService) GetAll() ([]model.Image, error) {
+func (dis *DockerServiceManager) GetAll() ([]model.DockerService, error) {
 	return dis.imageRepo.GetAll()
 }
 
-func (dis *DockerImageService) Save(image model.Image) error {
+func (dis *DockerServiceManager) Save(image model.DockerService) error {
 	return dis.imageRepo.Save(image)
 }
 
-func (dis *DockerImageService) SaveAll(images []model.Image) error {
+func (dis *DockerServiceManager) SaveAll(images []model.DockerService) error {
 	return dis.imageRepo.SaveAll(images)
 }
 
-func (dis *DockerImageService) Update(image model.Image) error {
+func (dis *DockerServiceManager) Update(image model.DockerService) error {
 	return dis.imageRepo.Update(image)
 }
 
-func (dis *DockerImageService) UpdateAll(images []model.Image) error {
+func (dis *DockerServiceManager) UpdateAll(images []model.DockerService) error {
 	return dis.imageRepo.UpdateAll(images)
 }
 
-func (dis *DockerImageService) Delete(id string) error {
+func (dis *DockerServiceManager) Delete(id string) error {
 	return dis.imageRepo.Delete(id)
 }
 
-func (dis *DockerImageService) DeleteAll() error {
+func (dis *DockerServiceManager) DeleteAll() error {
 	return dis.imageRepo.DeleteAll()
 }

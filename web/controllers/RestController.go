@@ -3,6 +3,7 @@ package controllers
 import (
 	"GoDockerSandbox/application/services"
 	"GoDockerSandbox/domain/model"
+	"fmt"
 
 	"log"
 	"net/http"
@@ -21,8 +22,8 @@ type ImageNames struct {
 }
 
 type RawCompose struct {
-	Id     string       `json:"id"`
-	Images []model.Image `json:"docker_services"`
+	Id     string                `json:"id"`
+	Images []model.DockerService `json:"docker_services"`
 }
 
 func NewRestController(sbox *services.SandboxService) *RestController {
@@ -38,7 +39,7 @@ func (rc *RestController) CreateSandbox(c *gin.Context) {
 // get images via docker client
 func (rc *RestController) GetImages(c *gin.Context) {
 	images := rc.sbox.GetImages()
-	c.HTML(http.StatusOK, "select_app_images.html", images)
+	c.HTML(http.StatusOK, "select_images.html", images)
 }
 
 // create docker services as they appear in the compose file
@@ -57,32 +58,44 @@ func (rc *RestController) CreateDockerServices(c *gin.Context) {
 	c.HTML(http.StatusOK, "create_docker_services.html", imageNames.ImageNames)
 }
 
-func (rc *RestController) BuildCompose(c *gin.Context) {
+func (rc *RestController) CreateCompose(c *gin.Context) {
 	var rawCompose RawCompose
-
-/* 	bodyBytes, err := io.ReadAll(c.Request.Body)
-	if err != nil {
-		log.Printf("Error reading body: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	log.Printf("Building compose file with images, %v", string(bodyBytes))
-
-	// todo can we do any better?
-	c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes)) */
 
 	err := c.ShouldBindJSON(&rawCompose)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	fmt.Println("Creating compose file for images:")
+	for _, image := range rawCompose.Images {
+		fmt.Println(image)
+	}
 	err = rc.sbox.SaveSandbox(rawCompose.Id, rawCompose.Images, "sandbox_network_"+uuid.New().String())
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, gin.H{"message": "Compose file built for id " + rawCompose.Id})
+	c.JSON(200, gin.H{"id": rawCompose.Id})
+}
+
+func (rc *RestController) UpdateCompose(c *gin.Context) {
+	var rawCompose RawCompose
+
+	err := c.ShouldBindJSON(&rawCompose)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	fmt.Println("Updating compose file for images:")
+	for _, image := range rawCompose.Images {
+		fmt.Println(image)
+	}
+	err = rc.sbox.UpdateSandbox(rawCompose.Id, rawCompose.Images, "sandbox_network_"+uuid.New().String())
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"id": rawCompose.Id})
 }
 
 func (rc *RestController) GetCompose(c *gin.Context) {
@@ -92,7 +105,7 @@ func (rc *RestController) GetCompose(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, compose)
+	c.HTML(http.StatusOK, "compose.html", compose.Yaml)
 }
 
 /* func (rc *RestController) SaveSandbox(c *gin.Context) {

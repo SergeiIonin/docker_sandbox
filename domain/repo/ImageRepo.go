@@ -5,14 +5,14 @@ import (
 )
 
 type ImageRepo interface {
-	Get(id string) (model.Image, error)
-	GetAll() ([]model.Image, error)
+	Get(id string) (model.DockerService, error)
+	GetAll() ([]model.DockerService, error)
 
-	Save(image model.Image) error
-	SaveAll(images []model.Image) error
+	Save(image model.DockerService) error
+	SaveAll(images []model.DockerService) error
 
-	Update(image model.Image) error
-	UpdateAll(images []model.Image) error
+	Update(image model.DockerService) error
+	UpdateAll(images []model.DockerService) error
 
 	Delete(id string) error
 	DeleteAll() error

@@ -21,7 +21,7 @@ type ComposeMongoRepo struct {
 }
 
 func NewComposeMongoRepo() (*ComposeMongoRepo, error) {
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:2717")
 
 	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil {

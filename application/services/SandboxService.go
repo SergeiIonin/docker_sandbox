@@ -3,15 +3,16 @@ package services
 import (
 	"GoDockerSandbox/domain/model"
 	"GoDockerSandbox/domain/repo"
+	"fmt"
 )
 
 type SandboxService struct {
-	dis *DockerImageService
-	dcs *DockerComposeService
+	dis *DockerServiceManager
+	dcs *DockerComposeManager
 }
 
 func NewSandboxService(imageRepo repo.ImageRepo, composeRepo repo.ComposeRepo) *SandboxService {
-	dis := NewDockerImageService(imageRepo)
+	dis := NewDockerServiceManager(imageRepo)
 	dcs := NewDockerComposeService(composeRepo)
 	return &SandboxService{
 		dis: dis,
@@ -23,7 +24,9 @@ func (ds *SandboxService) GetImages() []string {
 	return ds.dis.GetImages()
 }
 
-func (ds *SandboxService) SaveSandbox(name string, images []model.Image, network string) (err error) {
+func (ds *SandboxService) SaveSandbox(name string, images []model.DockerService, network string) (err error) {
+	// print images
+	fmt.Printf("%v\n", images)
 	appImageIds := make([]string, 0, len(images))
 	infraImageIds := make([]string, 0, len(images))
 	ds.dis.imageRepo.SaveAll(images)
@@ -55,10 +58,10 @@ func (ds *SandboxService) DeleteSandbox(name string) (err error) {
 	return
 }
 
-func (ds *SandboxService) UpdateSandbox(name string, images []model.Image, network string) (err error) {
+func (ds *SandboxService) UpdateSandbox(name string, images []model.DockerService, network string) (err error) {
 	appImageIds := make([]string, 0, len(images))
 	infraImageIds := make([]string, 0, len(images))
-	ds.dis.imageRepo.UpdateAll(images)
+	ds.dis.imageRepo.SaveAll(images)
 	for _, image := range images {
 		if image.IsInfra {
 			infraImageIds = append(infraImageIds, image.Id)

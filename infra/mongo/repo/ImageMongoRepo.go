@@ -21,12 +21,13 @@ type ImageMongoRepo struct {
 }
 
 func NewImageMongoRepo() (*ImageMongoRepo, error) {
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:2717")
 
 	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
 		log.Fatal(err)
-		return nil, err
+		panic(err)
+		//return nil, err
 	}
 
 	err = client.Ping(context.Background(), nil)
@@ -36,7 +37,7 @@ func NewImageMongoRepo() (*ImageMongoRepo, error) {
 	}
 
 	database := client.Database("docker_sandbox")
-	collection := database.Collection("app_images")
+	collection := database.Collection("images")
 	fmtr := formatters.NewImageMongoFormatter()
 
 	return &ImageMongoRepo{
@@ -47,20 +48,20 @@ func NewImageMongoRepo() (*ImageMongoRepo, error) {
 	}, nil
 }
 
-func (r *ImageMongoRepo) Get(id string) (model.Image, error) {
+func (r *ImageMongoRepo) Get(id string) (model.DockerService, error) {
 	filter := bson.M{"id": id}
-	var image model.Image
+	var image model.DockerService
 	err := r.collection.FindOne(context.Background(), filter).Decode(&image)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return model.Image{}, fmt.Errorf("image not found")
+			return model.DockerService{}, fmt.Errorf("image not found")
 		}
-		return model.Image{}, err
+		return model.DockerService{}, err
 	}
 	return image, nil
 }
 
-func (r *ImageMongoRepo) GetAll() ([]model.Image, error) {
+func (r *ImageMongoRepo) GetAll() ([]model.DockerService, error) {
 	filter := bson.D{}
 	cursor, err := r.collection.Find(context.Background(), filter)
 	if err != nil {
@@ -69,10 +70,10 @@ func (r *ImageMongoRepo) GetAll() ([]model.Image, error) {
 		}
 		return nil, err
 	}
-	images := []model.Image{}
+	images := []model.DockerService{}
 
 	for cursor.Next(context.Background()) {
-		var image model.Image
+		var image model.DockerService
 		err := cursor.Decode(&image)
 		if err != nil {
 			return nil, err
@@ -83,7 +84,7 @@ func (r *ImageMongoRepo) GetAll() ([]model.Image, error) {
 	return images, nil
 }
 
-func (r *ImageMongoRepo) Save(image model.Image) error {
+func (r *ImageMongoRepo) Save(image model.DockerService) error {
 	doc := r.formatter.FormatImage(image)
 	_, err := r.collection.InsertOne(context.Background(), doc)
 	if err != nil {
@@ -92,7 +93,7 @@ func (r *ImageMongoRepo) Save(image model.Image) error {
 	return nil
 }
 
-func (r *ImageMongoRepo) SaveAll(images []model.Image) error {
+func (r *ImageMongoRepo) SaveAll(images []model.DockerService) error {
 	docs := r.formatter.FormatImages(images)
 	_, err := r.collection.InsertMany(context.Background(), docs)
 	if err != nil {
@@ -101,7 +102,7 @@ func (r *ImageMongoRepo) SaveAll(images []model.Image) error {
 	return nil
 }
 
-func (r *ImageMongoRepo) Update(image model.Image) error {
+func (r *ImageMongoRepo) Update(image model.DockerService) error {
 	doc := r.formatter.FormatImage(image)
 	filter := bson.M{"id": image.Id}
 	_, err := r.collection.ReplaceOne(context.Background(), filter, doc)
@@ -111,7 +112,7 @@ func (r *ImageMongoRepo) Update(image model.Image) error {
 	return nil
 }
 
-func (r *ImageMongoRepo) UpdateAll(images []model.Image) error {
+func (r *ImageMongoRepo) UpdateAll(images []model.DockerService) error {
 	docs := r.formatter.FormatImages(images)
 	for _, doc := range docs {
 		filter := bson.M{"id": doc.(bson.M)["id"]}

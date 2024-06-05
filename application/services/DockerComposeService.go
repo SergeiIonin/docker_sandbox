@@ -6,42 +6,47 @@ import (
 	"GoDockerSandbox/domain/services"
 )
 
-type DockerComposeService struct {
+type DockerComposeManager struct {
 	composeRepo  repo.ComposeRepo
-	yamlBuiilder *services.DockerComposeYamlBuilder
+	yamlBuiilder *services.DockerComposeYamlHelper
 }
 
-func NewDockerComposeService(repo repo.ComposeRepo) *DockerComposeService {
-	return &DockerComposeService{
+func NewDockerComposeService(repo repo.ComposeRepo) *DockerComposeManager {
+	return &DockerComposeManager{
 		composeRepo: repo,
 	}
 }
 
-func (dcs *DockerComposeService) BuildComposeYaml(images []model.Image, network string) (yaml string) {
+func (dcs *DockerComposeManager) BuildComposeYaml(images []model.DockerService, network string) (yaml string) {
 	yaml = dcs.yamlBuiilder.BuildComposeYaml(images, network)
 	return
 }
 
-func (dcs *DockerComposeService) GetCompose(id string) (model.Compose, error) {
+func (dcs *DockerComposeManager) ParseComposeYaml(yaml string) (compose model.Compose) {
+	compose = dcs.ParseComposeYaml(yaml)
+	return
+}
+
+func (dcs *DockerComposeManager) GetCompose(id string) (model.Compose, error) {
 	return dcs.composeRepo.Get(id)
 }
 
-func (dcs *DockerComposeService) GetAllComposes() ([]model.Compose, error) {
+func (dcs *DockerComposeManager) GetAllComposes() ([]model.Compose, error) {
 	return dcs.composeRepo.GetAll()
 }
 
-func (dcs *DockerComposeService) SaveCompose(compose model.Compose) error {
+func (dcs *DockerComposeManager) SaveCompose(compose model.Compose) error {
 	return dcs.composeRepo.Save(compose)
 }
 
-func (dcs *DockerComposeService) UpdateCompose(compose model.Compose) error {
+func (dcs *DockerComposeManager) UpdateCompose(compose model.Compose) error {
 	return dcs.composeRepo.Update(compose)
 }
 
-func (dcs *DockerComposeService) DeleteCompose(id string) error {
+func (dcs *DockerComposeManager) DeleteCompose(id string) error {
 	return dcs.composeRepo.Delete(id)
 }
 
-func (dcs *DockerComposeService) DeleteAllComposes() error {
+func (dcs *DockerComposeManager) DeleteAllComposes() error {
 	return dcs.composeRepo.DeleteAll()
 }

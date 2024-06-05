@@ -25,13 +25,14 @@
                 const name = entity.querySelector('.name').value;
                 const ports = entity.querySelector('.ports').value;
                 const envFields = entity.querySelectorAll('.env-field');
+                const isInfra = entity.querySelector('.is_infra').checked;
                 const envs = [];
                 envFields.forEach(envField => {
                     const key = envField.querySelector('.env-key').value;
                     const value = envField.querySelector('.env-value').value;
                     envs.push({ key: key, value: value });
                 });
-                data.push({ image: entity.getAttribute('data-image'), name: name, ports: ports, ENVs: envs });
+                data.push({ image: entity.getAttribute('data-image'), name: name, ports: ports, is_infra: isInfra, ENVs: envs });
             });
             console.log(JSON.stringify(data, null, 2));
         }
@@ -59,6 +60,9 @@
                 <label for="name-{{$index}}">Name:</label>
                 <input type="text" id="name-{{$index}}" class="name" required>
                 <br>
+                <label for="is_infra-{{$index}}">Is Infra</label>
+                <input type="checkbox" id="is_infra-{{$index}}" class="is_infra">
+                <br>
                 <label for="ports-{{$index}}">Ports:</label>
                 <input type="text" id="ports-{{$index}}" class="ports">
                 <br>
@@ -72,7 +76,7 @@
         </div>
         {{end}}
     </div>
-    <button id="saveButton" onclick="collectData()">Save Selected Images</button>
+    <button id="createCompose" onclick="collectData()">Create Docker Compose</button>
     <script>
         const entityBoxes = document.querySelectorAll('.image-box');
         entityBoxes.forEach(box => {
@@ -80,29 +84,48 @@
                 box.classList.toggle('selected');
             });
         });
+
+        function getEnvs(document) {
+            const envFields = document.querySelectorAll('.env-field');
+            const envs = [];
+            envFields.forEach(envField => {
+                const key = envField.querySelector('.env-key').value;
+                const value = envField.querySelector('.env-value').value;
+                envs.push({ key: key, value: value });
+            });
+            return envs;
+        }
         
-        const saveButton = document.getElementById('saveButton');
+        const createCompose = document.getElementById('createCompose');
         
-        saveButton.addEventListener('click', () => {
+        createCompose.addEventListener('click', () => {
             const dockerServices = [];
             entityBoxes.forEach(box => {
-                if (box.classList.contains('selected')) {
+                var name = box.querySelector('.name').value;
+                if (name != null && name != "") {
+                    var imageNameFull = box.getAttribute('data-image');
+                    var imageName = imageNameFull.split(":")[0];
+                    var tag       = imageNameFull.split(":")[1];
+
                     dockerService = {
-                        image: box.getAttribute('data-image'),
-                        name: box.querySelector('.name').value,
+                        id: imageNameFull,
+                        imageName: imageName,
+                        name: name,
+                        tag: tag,
+                        is_infra: box.querySelector('.is_infra').checked,
                         ports: box.querySelector('.ports').value,
-                        envs: box.getAttribute('envs')
+                        envs: getEnvs(box)
                     };
                     dockerServices.push(dockerService);
                 }
             });
 
             const payload = {
-                id: '123445',
+                id: window.location.pathname.split('/').pop(),
                 docker_services: dockerServices
             };
 
-            fetch('/compose/build', {
+            fetch('/compose/create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -116,11 +139,11 @@
                     throw new Error('Internal Server Error:', response.status);
                 }
             })
-            .then(data => {
+            /* .then(data => {
                 const id = data.id;
                 console.log(id);
                 window.location.href = '/compose/' + id;
-            })
+            }) */
         });
 
     </script>    

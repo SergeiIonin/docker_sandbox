@@ -13,7 +13,7 @@ func NewImageMongoFormatter() *ImageMongoFormatter {
 	return &ImageMongoFormatter{}
 }
 
-func (fmtr *ImageMongoFormatter) FormatImage(image model.Image) interface{} {
+func (fmtr *ImageMongoFormatter) FormatImage(image model.DockerService) interface{} {
 	doc := bson.M{
 		"id":        image.Id,
 		"ImageName": image.ImageName,
@@ -26,7 +26,7 @@ func (fmtr *ImageMongoFormatter) FormatImage(image model.Image) interface{} {
 	return doc
 }
 
-func (fmtr *ImageMongoFormatter) FormatImages(images []model.Image) []interface{} {
+func (fmtr *ImageMongoFormatter) FormatImages(images []model.DockerService) []interface{} {
 	docs := make([]interface{}, 0, len(images))
 	for _, image := range images {
 		docs = append(docs, fmtr.FormatImage(image))

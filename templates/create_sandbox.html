@@ -5,14 +5,15 @@
 </head>
 <body>
     <button onclick="createSandbox()">Create Sandbox</button>
-
+    <input type="text" id="sandboxName" placeholder="Name your sandbox" required>
     <script>
         function createSandbox() {
-            fetch('/images')
+            var sandboxName = document.getElementById('sandboxName').value;
+            var uri = '/images/'+sandboxName;
+            fetch(uri)
                 .then(response => {
-                    // open /images/app and nothing else
                     if (response.status === 200) {
-                        window.location.href = '/images';
+                        window.location.href = uri;
                     } else {
                         console.error('Internal Server Error:', response.status);
                     }
