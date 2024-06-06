@@ -6,25 +6,25 @@ import (
 	"fmt"
 )
 
-type SandboxService struct {
-	dis *DockerImageService
+type SandboxManager struct {
+	dis *DockerImageManager
 	dcs *DockerComposeManager
 }
 
-func NewSandboxService(composeRepo repo.ComposeRepo) *SandboxService {
-	dis := NewDockerImageService()
+func NewSandboxManager(composeRepo repo.ComposeRepo) *SandboxManager {
+	dis := NewDockerImageManager()
 	dcs := NewDockerComposeService(composeRepo)
-	return &SandboxService{
+	return &SandboxManager{
 		dis: dis,
 		dcs: dcs,
 	}
 }
 
-func (ds *SandboxService) GetImages() []string {
+func (ds *SandboxManager) GetImages() []string {
 	return ds.dis.GetImages()
 }
 
-func (ds *SandboxService) SaveSandbox(name string, images []model.DockerService) (id string, err error) {
+func (ds *SandboxManager) SaveSandbox(name string, images []model.DockerService) (id string, err error) {
 	fmt.Printf("%v\n", images)
 	appImageIds := make([]string, 0, len(images))
 	infraImageIds := make([]string, 0, len(images))
@@ -46,22 +46,22 @@ func (ds *SandboxService) SaveSandbox(name string, images []model.DockerService)
 	return
 }
 
-func (ds *SandboxService) GetSandbox(name string) (compose model.Compose, err error) {
+func (ds *SandboxManager) GetSandbox(name string) (compose model.Compose, err error) {
 	compose, err = ds.dcs.composeRepo.Get(name)
 	return
 }
 
-func (ds *SandboxService) DeleteSandbox(name string) (err error) {
+func (ds *SandboxManager) DeleteSandbox(name string) (err error) {
 	err = ds.dcs.composeRepo.Delete(name)
 	return
 }
 
-func (ds *SandboxService) UpdateSandbox(id string, yaml string) (string, error) {
+func (ds *SandboxManager) UpdateSandbox(id string, yaml string) (string, error) {
 	_, err := ds.dcs.composeRepo.Update(id, yaml)
 	return id, err
 }
 
-func (ds *SandboxService) LaunchSandbox() (err error) {
+func (ds *SandboxManager) LaunchSandbox() (err error) {
 	err = nil
 	return
 }

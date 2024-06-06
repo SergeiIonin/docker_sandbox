@@ -4,20 +4,20 @@ import (
 	"GoDockerSandbox/infra/clients/docker"
 )
 
-type DockerImageService struct {
+type DockerImageManager struct {
 	dockerClient *docker.DockerClient
 }
 
-func NewDockerImageService() *DockerImageService {
-	return &DockerImageService{
+func NewDockerImageManager() *DockerImageManager {
+	return &DockerImageManager{
 		dockerClient: docker.NewDockerClient(),
 	}
 }
 
-func (dis *DockerImageService) GetImages() []string {
+func (dis *DockerImageManager) GetImages() []string {
 	return dis.dockerClient.GetImages()
 }
 
-func (dis *DockerImageService) GetImagesByName(name string) []string {
+func (dis *DockerImageManager) GetImagesByName(name string) []string {
 	return dis.dockerClient.GetImagesByName(name)
 }

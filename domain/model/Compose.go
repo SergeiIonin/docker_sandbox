@@ -5,6 +5,5 @@ type Compose struct {
 	Name        string   `json:"name"`
 	AppImages   []string `json:"app_images"`
 	InfraImages []string `json:"infra_images"`
-	Network     string   `json:"network"`
 	Yaml        string   `json:"yaml"`
 }

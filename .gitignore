@@ -1,2 +1,4 @@
 .vscode/
-templates/temp
+./idea/
+go.sum
+templates_test/

@@ -15,7 +15,7 @@ func main() {
 	if err != nil {
 		panic(err) // fixme
 	}
-	sbox := services.NewSandboxService(composeRepo)
+	sbox := services.NewSandboxManager(composeRepo)
 	rc := controllers.NewRestController(sbox)
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*")

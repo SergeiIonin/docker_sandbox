@@ -18,7 +18,6 @@ func (fmtr *ComposeMongoFormatter) FormatCompose(compose model.Compose) interfac
 		"name":        compose.Name,
 		"appImages":   compose.AppImages,
 		"infraImages": compose.InfraImages,
-		"network":     compose.Network,
 		"yaml":        compose.Yaml,
 	}
 	return doc

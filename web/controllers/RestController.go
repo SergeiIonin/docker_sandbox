@@ -13,7 +13,7 @@ import (
 
 type RestController struct {
 	//tpl      *template.Template
-	sbox *services.SandboxService
+	sbox *services.SandboxManager
 }
 
 type ImageNames struct {
@@ -25,7 +25,7 @@ type RawCompose struct {
 	Services []model.DockerService `json:"docker_services"`
 }
 
-func NewRestController(sbox *services.SandboxService) *RestController {
+func NewRestController(sbox *services.SandboxManager) *RestController {
 	return &RestController{
 		sbox: sbox,
 	}
