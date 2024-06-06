@@ -83,23 +83,35 @@ func (r *ComposeMongoRepo) GetAll() ([]model.Compose, error) {
 	return composes, nil
 }
 
-func (r *ComposeMongoRepo) Save(compose model.Compose) error {
+func (r *ComposeMongoRepo) Save(compose model.Compose) (id string, err error) {
 	doc := r.formatter.FormatCompose(compose)
-	_, err := r.collection.InsertOne(context.Background(), doc)
+	_, err = r.collection.InsertOne(context.Background(), doc)
+	id = compose.Id
 	if err != nil {
-		return err
+		return id, err
 	}
-	return nil
+	return id, nil
 }
 
-func (r *ComposeMongoRepo) Update(compose model.Compose) error {
+func (r *ComposeMongoRepo) Upsert(compose model.Compose) (id string, err error) {
 	doc := r.formatter.FormatCompose(compose)
-	filter := bson.M{"id": compose.Id}
-	_, err := r.collection.ReplaceOne(context.Background(), filter, doc)
-	if err != nil {
-		return err
+	id = compose.Id
+	findDoc := bson.M{"id": id}
+	res := r.collection.FindOneAndReplace(context.Background(), findDoc, doc)
+	if res.Err() != nil {
+		return id, res.Err()
 	}
-	return nil
+	return
+}
+
+func (r *ComposeMongoRepo) Update(id string, yaml string) (string, error) {
+	doc := bson.M{"$set": bson.M{"yaml": yaml}}
+	filter := bson.M{"id": id}
+	_, err := r.collection.UpdateOne(context.Background(), filter, doc)
+	if err != nil {
+		return id, err
+	}
+	return id, nil
 }
 
 func (r *ComposeMongoRepo) Delete(id string) error {

@@ -6,12 +6,10 @@
 </head>
 <body>
     <h1>Edit Compose YAML</h1>
-    <form action="/save" method="post">
-        <textarea name="yaml" rows="20" cols="80">
+    <textarea name="yaml" rows="20" cols="80">
         {{.}}
-        </textarea>
-        <input type="submit" value="Save">
-    </form>
+    </textarea>
+    <br>
     <button id="updateButton">Update</button>
     <script>
         const updateButton = document.getElementById('updateButton');

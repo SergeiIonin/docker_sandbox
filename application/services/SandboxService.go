@@ -24,8 +24,7 @@ func (ds *SandboxService) GetImages() []string {
 	return ds.dis.GetImages()
 }
 
-func (ds *SandboxService) SaveSandbox(name string, images []model.DockerService) (err error) {
-	// todo check if compose already exists
+func (ds *SandboxService) SaveSandbox(name string, images []model.DockerService) (id string, err error) {
 	fmt.Printf("%v\n", images)
 	appImageIds := make([]string, 0, len(images))
 	infraImageIds := make([]string, 0, len(images))
@@ -37,7 +36,7 @@ func (ds *SandboxService) SaveSandbox(name string, images []model.DockerService)
 		}
 	}
 	yaml := ds.dcs.BuildComposeYaml(images)
-	err = ds.dcs.composeRepo.Save(model.Compose{
+	id, err = ds.dcs.composeRepo.Save(model.Compose{
 		Id:          name,
 		Name:        name,
 		AppImages:   appImageIds,
@@ -57,15 +56,9 @@ func (ds *SandboxService) DeleteSandbox(name string) (err error) {
 	return
 }
 
-func (ds *SandboxService) UpdateSandbox(name string, yaml string) (err error) {
-	err = ds.dcs.composeRepo.Update(model.Compose{
-		Id:          name,
-		Name:        name,
-		AppImages:   []string{}, // fixme
-		InfraImages: []string{}, // fixme
-		Yaml:        yaml,
-	})
-	return
+func (ds *SandboxService) UpdateSandbox(id string, yaml string) (string, error) {
+	_, err := ds.dcs.composeRepo.Update(id, yaml)
+	return id, err
 }
 
 func (ds *SandboxService) LaunchSandbox() (err error) {

@@ -30,12 +30,12 @@ func (dcs *DockerComposeManager) GetAllComposes() ([]model.Compose, error) {
 	return dcs.composeRepo.GetAll()
 }
 
-func (dcs *DockerComposeManager) SaveCompose(compose model.Compose) error {
+func (dcs *DockerComposeManager) SaveCompose(compose model.Compose) (string, error) {
 	return dcs.composeRepo.Save(compose)
 }
 
-func (dcs *DockerComposeManager) UpdateCompose(compose model.Compose) error {
-	return dcs.composeRepo.Update(compose)
+func (dcs *DockerComposeManager) UpdateCompose(id string, yaml string) (string, error) {
+	return dcs.composeRepo.Update(id, yaml)
 }
 
 func (dcs *DockerComposeManager) DeleteCompose(id string) error {

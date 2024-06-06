@@ -69,12 +69,12 @@ func (rc *RestController) CreateCompose(c *gin.Context) {
 	for _, image := range rawCompose.Services {
 		fmt.Println(image)
 	}
-	err = rc.sbox.SaveSandbox(rawCompose.Id, rawCompose.Services)
+	id, err := rc.sbox.SaveSandbox(rawCompose.Id, rawCompose.Services)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, gin.H{"id": rawCompose.Id})
+	c.JSON(200, gin.H{"id": id})
 }
 
 func (rc *RestController) UpdateCompose(c *gin.Context) {
@@ -87,7 +87,7 @@ func (rc *RestController) UpdateCompose(c *gin.Context) {
 	}
 
 	id := c.Param("id")
-	if err = rc.sbox.UpdateSandbox(id, yaml); err != nil {
+	if _, err = rc.sbox.UpdateSandbox(id, yaml); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -103,27 +103,3 @@ func (rc *RestController) GetCompose(c *gin.Context) {
 	}
 	c.HTML(http.StatusOK, "compose.html", compose.Yaml)
 }
-
-/* func (rc *RestController) SaveImages(c *gin.Context) {
-	var data []string
-	id := c.Params.ByName("id")
-	err := c.ShouldBindJSON(&data)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	rc.sbox.SaveAppImages(id, data)
-	c.JSON(200, gin.H{"message": "Image saved"})
-} */
-
-/* func (rc *RestController) StartContainer(c *gin.Context) {
-	name := c.Param("name")
-	rc.ds.ContainersService.RunContainer(name)
-	c.JSON(200, gin.H{"message": "Container started"})
-}
-
-func (rc *RestController) StopContainer(c *gin.Context) {
-	name := c.Param("name")
-	rc.ds.ContainersService.StopContainer(name)
-	c.JSON(200, gin.H{"message": "Container stopped"})
-} */
