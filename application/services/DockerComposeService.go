@@ -17,13 +17,8 @@ func NewDockerComposeService(repo repo.ComposeRepo) *DockerComposeManager {
 	}
 }
 
-func (dcs *DockerComposeManager) BuildComposeYaml(images []model.DockerService, network string) (yaml string) {
-	yaml = dcs.yamlBuiilder.BuildComposeYaml(images, network)
-	return
-}
-
-func (dcs *DockerComposeManager) ParseComposeYaml(yaml string) (compose model.Compose) {
-	compose = dcs.ParseComposeYaml(yaml)
+func (dcs *DockerComposeManager) BuildComposeYaml(services []model.DockerService) (yaml string) {
+	yaml = dcs.yamlBuiilder.BuildComposeYaml(services)
 	return
 }
 

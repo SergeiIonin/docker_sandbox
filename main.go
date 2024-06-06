@@ -11,15 +11,11 @@ import (
 )
 
 func main() {
-	imageRepo, err := repo.NewImageMongoRepo()
-	if err != nil {
-		panic(err) // fixme
-	}
 	composeRepo, err := repo.NewComposeMongoRepo()
 	if err != nil {
 		panic(err) // fixme
 	}
-	sbox := services.NewSandboxService(imageRepo, composeRepo)
+	sbox := services.NewSandboxService(composeRepo)
 	rc := controllers.NewRestController(sbox)
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*")
@@ -32,7 +28,7 @@ func main() {
 	router.GET("/create_sandbox", rc.CreateSandbox)
 	router.GET("/images/:name", rc.GetImages)
 	router.POST("/compose/create", rc.CreateCompose)
-	router.POST("/compose/update", rc.UpdateCompose)
+	router.POST("/compose/update/:id", rc.UpdateCompose)
 	router.GET("/compose/:id", rc.GetCompose)
 	//router.POST("/images/build-compose", rc.BuildCompose)
 	//router.POST("/containers/:name/start", rc.StartContainer)

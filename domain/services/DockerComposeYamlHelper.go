@@ -2,8 +2,6 @@ package services
 
 import (
 	"GoDockerSandbox/domain/model"
-	"github.com/google/uuid"
-	"gopkg.in/yaml.v3"
 )
 
 type DockerComposeYamlHelper struct {
@@ -17,79 +15,75 @@ func NewDockerComposeHelper() *DockerComposeYamlHelper {
 	return &DockerComposeYamlHelper{}
 }
 
-func (dcb *DockerComposeYamlHelper) buildEnvironmentYaml(envs map[string]string) (envYaml string) {
+func (dcb *DockerComposeYamlHelper) buildEnvironmentYaml(environment map[string]string) (envYaml string) {
 	envYaml =
 		indent4 + "environment:\n"
-	for key, value := range envs {
+	for key, value := range environment {
 		envYaml += indent6 + key + ":" + value + "\n"
 	}
 	return
 }
 
-func (dcb *DockerComposeYamlHelper) buildServiceYaml(serviceName string, image model.DockerService, network string) (srvYaml string) {
-	srvYaml =
-		indent2 + image.Name + ":\n" +
-			indent4 + "image: " + image.ImageName + "\n" +
-			indent4 + "ports:\n" +
-			indent6 + "- " + image.Ports + "\n" +
-			dcb.buildEnvironmentYaml(image.Envs) +
-			indent4 + "networks:\n" +
-			indent6 + "- " + network + "\n"
+func (dcb *DockerComposeYamlHelper) buildPortsYaml(ports []string) (portsYaml string) {
+	portsYaml =
+		indent4 + "ports:\n"
+	for _, port := range ports {
+		portsYaml += indent6 + "- " + port + "\n"
+	}
 	return
 }
 
-func (dcb *DockerComposeYamlHelper) BuildComposeYaml(images []model.DockerService, network string) (composeYaml string) {
+// build networks yaml
+func (dcb *DockerComposeYamlHelper) buildNetworksYaml(networks []string) (networksYaml string) {
+	networksYaml =
+		indent4 + "networks:\n"
+	for _, network := range networks {
+		networksYaml += indent6 + "- " + network + "\n"
+	}
+	return
+}
+
+func (dcb *DockerComposeYamlHelper) buildServiceYaml(service model.DockerService) (srvYaml string) {
+	srvYaml =
+		indent2 + service.Name + ":\n" +
+			indent4 + "image: " + service.ImageName + "\n" +
+			dcb.buildPortsYaml(service.Ports) +
+			dcb.buildEnvironmentYaml(service.Environment) +
+			dcb.buildNetworksYaml(service.Networks)
+	return
+}
+
+func (dcb *DockerComposeYamlHelper) buildExternalNetworksYaml(services []model.DockerService) (extNetworksYaml string) {
+	nets := make(map[string]bool)
+	for _, service := range services {
+		for _, network := range service.Networks {
+			nets[network] = true
+		}
+	}
+
+	extNetworksYaml =
+		"networks:\n"
+	for network := range nets {
+		extNetworksYaml += indent2 + network + ":\n" +
+			indent4 + "external: true\n"
+	}
+	return
+}
+
+func (dcb *DockerComposeYamlHelper) BuildComposeYaml(services []model.DockerService) (composeYaml string) {
 	composeYaml =
-			"\n" +
+		"\n" +
 			"version: '3.8'\n" +
 			"\n" +
 			"services:\n"
 
-	for _, image := range images {
-		composeYaml += dcb.buildServiceYaml("app"+uuid.New().String(), image, network)
+	for _, service := range services {
+		composeYaml += dcb.buildServiceYaml(service)
 		composeYaml += "\n"
 	}
 
 	composeYaml +=
-		"networks:\n" +
-			indent2 + network + ":\n" +
-			indent4 + "external: true"
+		dcb.buildExternalNetworksYaml(services)
 
 	return composeYaml
-}
-
-func (dcb *DockerComposeYamlHelper) ParseComposeYaml(composeYaml string) (compose model.Compose, err error) {
-		var dockerCompose model.DockerCompose
-		err = yaml.Unmarshal([]byte(composeYaml), &dockerCompose)
-		if err != nil {
-			return Compose{}, err
-		}
-	
-		var appImages, infraImages []string
-		var networkName string
-	
-		for serviceName, service := range dockerCompose.Services {
-			if networkName == "" && len(service.Networks) > 0 {
-				networkName = service.Networks[0]
-			}
-			if service.Image != "" {
-				if isInfraImage(serviceName) {
-					infraImages = append(infraImages, service.Image)
-				} else {
-					appImages = append(appImages, service.Image)
-				}
-			}
-		}
-	
-		compose := Compose{
-			Id:          "", // You can generate or assign an ID here
-			Name:        "", // You can set the name here
-			AppImages:   appImages,
-			InfraImages: infraImages,
-			Network:     networkName,
-			Yaml:        composeYaml,
-		}
-	
-		return compose, nil
-	}
 }

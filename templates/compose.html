@@ -12,5 +12,28 @@
         </textarea>
         <input type="submit" value="Save">
     </form>
+    <button id="updateButton">Update</button>
+    <script>
+        const updateButton = document.getElementById('updateButton');
+        const path = window.location.pathname;
+        const id = path.split('/').pop();
+        updateButton.addEventListener('click', () => {
+            fetch(`/compose/update/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain'
+                },
+                body: document.querySelector('textarea').value
+            }).then(response => {
+                if (response.status === 200) {
+                    fetch(`/compose/${id}`)
+                } else {
+                    console.error('Internal Server Error:', response.status);
+                }
+            }).catch(error => {
+                    console.error('Internal Server Error:', error);
+            });
+        });
+    </script>
 </body>
 </html>

@@ -18,6 +18,19 @@
             envContainer.appendChild(newEnvField);
         }
 
+        function addPortField(entityIndex) {
+            const portContainer = document.getElementById('portContainer-' + entityIndex);
+            const newPortField = document.createElement('div');
+            newPortField.classList.add('port-field');
+            newPortField.innerHTML = `
+                <label for="HostPort-${entityIndex}">Host Port:</label>
+                <input type="text" name="HostPort-${entityIndex}" class="host-port" required>
+                <label for="ContainerPort-${entityIndex}">Container Port:</label>
+                <input type="text" name="ContainerPort-${entityIndex}" class="container-port" required>
+            `;
+            portContainer.appendChild(newPortField);
+        }
+
         function collectData() {
             const entities = document.querySelectorAll('.entity');
             const data = [];
@@ -63,15 +76,16 @@
                 <label for="is_infra-{{$index}}">Is Infra</label>
                 <input type="checkbox" id="is_infra-{{$index}}" class="is_infra">
                 <br>
-                <label for="ports-{{$index}}">Ports:</label>
-                <input type="text" id="ports-{{$index}}" class="ports">
+                <div id="portContainer-{{$index}}" class="ports">
+                    <label>Ports:</label>
+                </div>
+                <button type="button" onclick="addPortField({{$index}})">Add Port</button>
                 <br>
                 <div id="envContainer-{{$index}}" class="envs">
                     <label>ENVs:</label>
                 </div>
                 <button type="button" onclick="addEnvField({{$index}})">Add ENV</button>
                 <br>
-
             </div>
         </div>
         {{end}}
@@ -91,9 +105,20 @@
             envFields.forEach(envField => {
                 const key = envField.querySelector('.env-key').value;
                 const value = envField.querySelector('.env-value').value;
-                envs.push({ key: key, value: value });
+                envs.push({ key: value });
             });
             return envs;
+        }
+
+        function getPorts(document) {
+            const portFields = document.querySelectorAll('.port-field');
+            const ports = [];
+            portFields.forEach(portField => {
+                const hostPort      = portField.querySelector('.host-port').value;
+                const containerPort = portField.querySelector('.container-port').value;
+                ports.push(hostPort + ":" + containerPort);
+            });
+            return ports;
         }
         
         const createCompose = document.getElementById('createCompose');
@@ -113,7 +138,7 @@
                         name: name,
                         tag: tag,
                         is_infra: box.querySelector('.is_infra').checked,
-                        ports: box.querySelector('.ports').value,
+                        ports: getPorts(box),
                         envs: getEnvs(box)
                     };
                     dockerServices.push(dockerService);
@@ -139,11 +164,11 @@
                     throw new Error('Internal Server Error:', response.status);
                 }
             })
-            /* .then(data => {
+             .then(data => {
                 const id = data.id;
                 console.log(id);
                 window.location.href = '/compose/' + id;
-            }) */
+            })
         });
 
     </script>    

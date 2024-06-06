@@ -7,12 +7,12 @@ import (
 )
 
 type SandboxService struct {
-	dis *DockerServiceManager
+	dis *DockerImageService
 	dcs *DockerComposeManager
 }
 
-func NewSandboxService(imageRepo repo.ImageRepo, composeRepo repo.ComposeRepo) *SandboxService {
-	dis := NewDockerServiceManager(imageRepo)
+func NewSandboxService(composeRepo repo.ComposeRepo) *SandboxService {
+	dis := NewDockerImageService()
 	dcs := NewDockerComposeService(composeRepo)
 	return &SandboxService{
 		dis: dis,
@@ -24,12 +24,11 @@ func (ds *SandboxService) GetImages() []string {
 	return ds.dis.GetImages()
 }
 
-func (ds *SandboxService) SaveSandbox(name string, images []model.DockerService, network string) (err error) {
-	// print images
+func (ds *SandboxService) SaveSandbox(name string, images []model.DockerService) (err error) {
+	// todo check if compose already exists
 	fmt.Printf("%v\n", images)
 	appImageIds := make([]string, 0, len(images))
 	infraImageIds := make([]string, 0, len(images))
-	ds.dis.imageRepo.SaveAll(images)
 	for _, image := range images {
 		if image.IsInfra {
 			infraImageIds = append(infraImageIds, image.Id)
@@ -37,7 +36,7 @@ func (ds *SandboxService) SaveSandbox(name string, images []model.DockerService,
 			appImageIds = append(appImageIds, image.Id)
 		}
 	}
-	yaml := ds.dcs.BuildComposeYaml(images, network)
+	yaml := ds.dcs.BuildComposeYaml(images)
 	err = ds.dcs.composeRepo.Save(model.Compose{
 		Id:          name,
 		Name:        name,
@@ -58,23 +57,12 @@ func (ds *SandboxService) DeleteSandbox(name string) (err error) {
 	return
 }
 
-func (ds *SandboxService) UpdateSandbox(name string, images []model.DockerService, network string) (err error) {
-	appImageIds := make([]string, 0, len(images))
-	infraImageIds := make([]string, 0, len(images))
-	ds.dis.imageRepo.SaveAll(images)
-	for _, image := range images {
-		if image.IsInfra {
-			infraImageIds = append(infraImageIds, image.Id)
-		} else {
-			appImageIds = append(appImageIds, image.Id)
-		}
-	}
-	yaml := ds.dcs.BuildComposeYaml(images, network)
+func (ds *SandboxService) UpdateSandbox(name string, yaml string) (err error) {
 	err = ds.dcs.composeRepo.Update(model.Compose{
 		Id:          name,
 		Name:        name,
-		AppImages:   appImageIds,
-		InfraImages: infraImageIds,
+		AppImages:   []string{}, // fixme
+		InfraImages: []string{}, // fixme
 		Yaml:        yaml,
 	})
 	return
