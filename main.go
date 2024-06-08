@@ -30,6 +30,9 @@ func main() {
 	router.POST("/compose/create", rc.CreateCompose)
 	router.POST("/compose/update/:id", rc.UpdateCompose)
 	router.GET("/compose/:id", rc.GetCompose)
+	router.POST("/compose/:id/run", rc.RunCompose)
+	router.POST("/compose/:id/stop", rc.StopCompose)
+
 	//router.POST("/images/build-compose", rc.BuildCompose)
 	//router.POST("/containers/:name/start", rc.StartContainer)
 	//router.POST("/containers/:name/stop", rc.StopContainer)

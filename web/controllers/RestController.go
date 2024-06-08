@@ -4,8 +4,6 @@ import (
 	"GoDockerSandbox/application/services"
 	"GoDockerSandbox/domain/model"
 	"fmt"
-
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -39,22 +37,6 @@ func (rc *RestController) CreateSandbox(c *gin.Context) {
 func (rc *RestController) GetImages(c *gin.Context) {
 	images := rc.sbox.GetImages()
 	c.HTML(http.StatusOK, "select_images.html", images)
-}
-
-// create docker services as they appear in the compose file
-func (rc *RestController) CreateDockerServices(c *gin.Context) {
-	var imageNames ImageNames
-
-	err := c.ShouldBindJSON(&imageNames)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	log.Println("Creating docker services for images:")
-	for _, imageName := range imageNames.ImageNames {
-		log.Println(imageName)
-	}
-	c.HTML(http.StatusOK, "create_docker_services.html", imageNames.ImageNames)
 }
 
 func (rc *RestController) CreateCompose(c *gin.Context) {
@@ -102,4 +84,31 @@ func (rc *RestController) GetCompose(c *gin.Context) {
 		return
 	}
 	c.HTML(http.StatusOK, "compose.html", compose.Yaml)
+}
+
+func (rc *RestController) RunCompose(c *gin.Context) {
+	id := c.Param("id")
+
+	yamlRaw, err := c.GetRawData()
+	yaml := string(yamlRaw)
+
+	containers, err := rc.sbox.RunSandbox(id, yaml)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.HTML(http.StatusOK, "running_sandbox.html", containers)
+}
+
+func (rc *RestController) StopCompose(c *gin.Context) {
+	id := c.Param("id")
+
+	err := rc.sbox.StopSandbox(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.HTML(http.StatusOK, "running_sandbox.html", []string{}) // fixme
 }

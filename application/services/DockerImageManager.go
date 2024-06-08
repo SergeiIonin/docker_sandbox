@@ -14,10 +14,10 @@ func NewDockerImageManager() *DockerImageManager {
 	}
 }
 
-func (dis *DockerImageManager) GetImages() []string {
-	return dis.dockerClient.GetImages()
+func (dcm *DockerImageManager) GetImages() []string {
+	return dcm.dockerClient.GetImages()
 }
 
-func (dis *DockerImageManager) GetImagesByName(name string) []string {
-	return dis.dockerClient.GetImagesByName(name)
+func (dcm *DockerImageManager) GetImagesByName(name string) []string {
+	return dcm.dockerClient.GetImagesByName(name)
 }

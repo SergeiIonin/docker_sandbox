@@ -16,6 +16,7 @@ func (fmtr *ComposeMongoFormatter) FormatCompose(compose model.Compose) interfac
 	doc := bson.M{
 		"id":          compose.Id,
 		"name":        compose.Name,
+		"services":    compose.Services,
 		"appImages":   compose.AppImages,
 		"infraImages": compose.InfraImages,
 		"yaml":        compose.Yaml,

@@ -10,12 +10,12 @@
         {{.}}
     </textarea>
     <br>
-    <button id="updateButton">Update</button>
+    <button id="saveButton">Save</button>
     <script>
-        const updateButton = document.getElementById('updateButton');
+        const saveButton = document.getElementById('saveButton');
         const path = window.location.pathname;
         const id = path.split('/').pop();
-        updateButton.addEventListener('click', () => {
+        saveButton.addEventListener('click', () => {
             fetch(`/compose/update/${id}`, {
                 method: 'POST',
                 headers: {
@@ -28,6 +28,18 @@
                 } else {
                     console.error('Internal Server Error:', response.status);
                 }
+            }).catch(error => {
+                    console.error('Internal Server Error:', error);
+            });
+        });
+    </script>
+    <br>
+    <button id="runButton">Run</button>
+    <script>
+        const runButton = document.getElementById('runButton');
+        runButton.addEventListener('click', () => {
+            fetch(`/compose/${id}/run`, {
+                method: 'POST'
             }).catch(error => {
                     console.error('Internal Server Error:', error);
             });

@@ -31,23 +31,15 @@
             portContainer.appendChild(newPortField);
         }
 
-        function collectData() {
-            const entities = document.querySelectorAll('.entity');
-            const data = [];
-            entities.forEach((entity, index) => {
-                const name = entity.querySelector('.name').value;
-                const ports = entity.querySelector('.ports').value;
-                const envFields = entity.querySelectorAll('.env-field');
-                const isInfra = entity.querySelector('.is_infra').checked;
-                const envs = [];
-                envFields.forEach(envField => {
-                    const key = envField.querySelector('.env-key').value;
-                    const value = envField.querySelector('.env-value').value;
-                    envs.push({ key: key, value: value });
-                });
-                data.push({ image: entity.getAttribute('data-image'), name: name, ports: ports, is_infra: isInfra, ENVs: envs });
-            });
-            console.log(JSON.stringify(data, null, 2));
+        function addNetwork(entityIndex) {
+            const networkContainer = document.getElementById('networkContainer-' + entityIndex);
+            const newNetworkField = document.createElement('div');
+            newNetworkField.classList.add('network-field');
+            newNetworkField.innerHTML = `
+                <label for="network-${entityIndex}">Network:</label>
+                <input type="text" name="network-${entityIndex}" class="network" required>
+            `;
+            networkContainer.appendChild(newNetworkField);
         }
     </script>
     <style>
@@ -86,11 +78,16 @@
                 </div>
                 <button type="button" onclick="addEnvField({{$index}})">Add ENV</button>
                 <br>
+                <div id="networkContainer-{{$index}}" class="networks">
+                    <label>Networks:</label>
+                </div>
+                <button type="button" onclick="addNetwork({{$index}})">Add Network</button>
+                <br>
             </div>
         </div>
         {{end}}
     </div>
-    <button id="createCompose" onclick="collectData()">Create Docker Compose</button>
+    <button id="createCompose">Create Docker Compose</button>
     <script>
         const entityBoxes = document.querySelectorAll('.image-box');
         entityBoxes.forEach(box => {
@@ -101,11 +98,11 @@
 
         function getEnvs(document) {
             const envFields = document.querySelectorAll('.env-field');
-            const envs = [];
+            const envs = {};
             envFields.forEach(envField => {
                 const key = envField.querySelector('.env-key').value;
                 const value = envField.querySelector('.env-value').value;
-                envs.push({ key: value });
+                envs[key] = value;
             });
             return envs;
         }
@@ -120,26 +117,37 @@
             });
             return ports;
         }
+
+        function getNetworks(document) {
+            const networkFields = document.querySelectorAll('.network-field');
+            const networks = [];
+            networkFields.forEach(networkField => {
+                const network = networkField.querySelector('.network').value;
+                networks.push(network);
+            });
+            return networks;
+        }
         
         const createCompose = document.getElementById('createCompose');
         
         createCompose.addEventListener('click', () => {
             const dockerServices = [];
             entityBoxes.forEach(box => {
-                var name = box.querySelector('.name').value;
-                if (name != null && name != "") {
-                    var imageNameFull = box.getAttribute('data-image');
-                    var imageName = imageNameFull.split(":")[0];
-                    var tag       = imageNameFull.split(":")[1];
+                const name = box.querySelector('.name').value;
+                if (name != null && name !== "") {
+                    const imageNameFull = box.getAttribute('data-image');
+                    const imageName = imageNameFull.split(":")[0];
+                    const tag       = imageNameFull.split(":")[1];
 
                     dockerService = {
                         id: imageNameFull,
-                        imageName: imageName,
+                        image_name: imageName,
                         name: name,
                         tag: tag,
                         is_infra: box.querySelector('.is_infra').checked,
                         ports: getPorts(box),
-                        envs: getEnvs(box)
+                        environment: getEnvs(box),
+                        networks: getNetworks(box)
                     };
                     dockerServices.push(dockerService);
                 }
