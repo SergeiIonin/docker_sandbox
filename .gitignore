@@ -2,3 +2,4 @@
 ./idea/
 go.sum
 templates_test/
+go.mod/

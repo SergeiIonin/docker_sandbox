@@ -15,16 +15,16 @@ func NewDockerComposeHelper() *DockerComposeYamlHelper {
 	return &DockerComposeYamlHelper{}
 }
 
-func (dcb *DockerComposeYamlHelper) buildEnvironmentYaml(environment map[string]string) (envYaml string) {
+func (dcyh *DockerComposeYamlHelper) buildEnvironmentYaml(environment map[string]string) (envYaml string) {
 	envYaml =
 		indent4 + "environment:\n"
 	for key, value := range environment {
-		envYaml += indent6 + key + ":" + value + "\n"
+		envYaml += indent6 + key + ": " + value + "\n"
 	}
 	return
 }
 
-func (dcb *DockerComposeYamlHelper) buildPortsYaml(ports []string) (portsYaml string) {
+func (dcyh *DockerComposeYamlHelper) buildPortsYaml(ports []string) (portsYaml string) {
 	portsYaml =
 		indent4 + "ports:\n"
 	for _, port := range ports {
@@ -34,7 +34,7 @@ func (dcb *DockerComposeYamlHelper) buildPortsYaml(ports []string) (portsYaml st
 }
 
 // build networks yaml
-func (dcb *DockerComposeYamlHelper) buildNetworksYaml(networks []string) (networksYaml string) {
+func (dcyh *DockerComposeYamlHelper) buildNetworksYaml(networks []string) (networksYaml string) {
 	networksYaml =
 		indent4 + "networks:\n"
 	for _, network := range networks {
@@ -43,17 +43,17 @@ func (dcb *DockerComposeYamlHelper) buildNetworksYaml(networks []string) (networ
 	return
 }
 
-func (dcb *DockerComposeYamlHelper) buildServiceYaml(service model.DockerService) (srvYaml string) {
+func (dcyh *DockerComposeYamlHelper) buildServiceYaml(service model.DockerService) (srvYaml string) {
 	srvYaml =
 		indent2 + service.Name + ":\n" +
 			indent4 + "image: " + service.ImageName + "\n" +
-			dcb.buildPortsYaml(service.Ports) +
-			dcb.buildEnvironmentYaml(service.Environment) +
-			dcb.buildNetworksYaml(service.Networks)
+			dcyh.buildPortsYaml(service.Ports) +
+			dcyh.buildEnvironmentYaml(service.Environment) +
+			dcyh.buildNetworksYaml(service.Networks)
 	return
 }
 
-func (dcb *DockerComposeYamlHelper) buildExternalNetworksYaml(services []model.DockerService) (extNetworksYaml string) {
+func (dcyh *DockerComposeYamlHelper) buildExternalNetworksYaml(services []model.DockerService) (extNetworksYaml string) {
 	nets := make(map[string]bool)
 	for _, service := range services {
 		for _, network := range service.Networks {
@@ -70,7 +70,7 @@ func (dcb *DockerComposeYamlHelper) buildExternalNetworksYaml(services []model.D
 	return
 }
 
-func (dcb *DockerComposeYamlHelper) BuildComposeYaml(services []model.DockerService) (composeYaml string) {
+func (dcyh *DockerComposeYamlHelper) BuildComposeYaml(services []model.DockerService) (composeYaml string) {
 	composeYaml =
 		"\n" +
 			"version: '3.8'\n" +
@@ -78,12 +78,12 @@ func (dcb *DockerComposeYamlHelper) BuildComposeYaml(services []model.DockerServ
 			"services:\n"
 
 	for _, service := range services {
-		composeYaml += dcb.buildServiceYaml(service)
+		composeYaml += dcyh.buildServiceYaml(service)
 		composeYaml += "\n"
 	}
 
 	composeYaml +=
-		dcb.buildExternalNetworksYaml(services)
+		dcyh.buildExternalNetworksYaml(services)
 
 	return composeYaml
 }

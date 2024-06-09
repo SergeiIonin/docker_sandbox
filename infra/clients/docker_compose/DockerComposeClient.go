@@ -15,6 +15,7 @@ func NewDockerComposeClient() *DockerComposeClient {
 }
 
 func (dcc *DockerComposeClient) RunDockerCompose(filePath string) error {
+	log.Printf("Running docker-compose for %s", filePath)
 	cmd := exec.Command("docker-compose", "-f", filePath, "up", "-d")
 	err := cmd.Run()
 	if err != nil {

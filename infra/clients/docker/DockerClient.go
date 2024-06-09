@@ -53,7 +53,7 @@ func (dc *DockerClient) GetAllContainers() []string {
 }
 
 func (dc *DockerClient) getContainers(args []string) []string {
-	baseArgs := []string{"container", "--format", "{{.Names}} | {{.Image}} | {{.Status}}"}
+	baseArgs := []string{"container", "ls", "--format", "{{.Names}} | {{.Image}} | {{.Status}}"}
 	cmd := exec.Command("docker", append(baseArgs, args...)...)
 	output, err := cmd.Output()
 	if err != nil {

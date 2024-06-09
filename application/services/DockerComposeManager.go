@@ -5,6 +5,7 @@ import (
 	"GoDockerSandbox/domain/repo"
 	"GoDockerSandbox/domain/services"
 	"GoDockerSandbox/infra/clients/docker_compose"
+	"log"
 	"strings"
 )
 
@@ -16,37 +17,41 @@ type DockerComposeManager struct {
 
 func NewDockerComposeService(repo repo.ComposeRepo) *DockerComposeManager {
 	return &DockerComposeManager{
-		composeRepo: repo,
+		composeRepo:   repo,
+		yamlBuilder:   services.NewDockerComposeHelper(),
+		composeClient: docker_compose.NewDockerComposeClient(),
 	}
 }
 
-func (dcs *DockerComposeManager) BuildComposeYaml(services []model.DockerService) (yaml string) {
-	yaml = dcs.yamlBuilder.BuildComposeYaml(services)
+func (dcm *DockerComposeManager) BuildComposeYaml(services []model.DockerService) (yaml string) {
+	yaml = dcm.yamlBuilder.BuildComposeYaml(services)
 	return
 }
 
-func (dcs *DockerComposeManager) GetCompose(id string) (model.Compose, error) {
-	return dcs.composeRepo.Get(id)
+func (dcm *DockerComposeManager) GetCompose(id string) (model.Compose, error) {
+	return dcm.composeRepo.Get(id)
 }
 
-func (dcs *DockerComposeManager) GetAllComposes() ([]model.Compose, error) {
-	return dcs.composeRepo.GetAll()
+func (dcm *DockerComposeManager) GetAllComposes() ([]model.Compose, error) {
+	return dcm.composeRepo.GetAll()
 }
 
-func (dcs *DockerComposeManager) SaveCompose(compose model.Compose) (string, error) {
-	return dcs.composeRepo.Save(compose)
+func (dcm *DockerComposeManager) SaveCompose(compose model.Compose) (string, error) {
+	return dcm.composeRepo.Save(compose)
 }
 
-func (dcs *DockerComposeManager) UpdateCompose(id string, yaml string) (string, error) {
-	return dcs.composeRepo.Update(id, yaml)
+func (dcm *DockerComposeManager) UpdateCompose(id string, yaml string) (string, error) {
+	return dcm.composeRepo.Update(id, yaml)
 }
 
-func (dcs *DockerComposeManager) RunDockerCompose(filePath string) error {
-	return dcs.composeClient.RunDockerCompose(filePath)
+func (dcm *DockerComposeManager) RunDockerCompose(filePath string) error {
+	return dcm.composeClient.RunDockerCompose(filePath)
 }
 
-func (dcs *DockerComposeManager) GetRunningComposeServices(composeServices []string) []string {
-	containers := dcs.composeClient.GetRunningContainers()
+func (dcm *DockerComposeManager) GetRunningComposeServices(composeServices []string) []string {
+	containers := dcm.composeClient.GetRunningContainers()
+	log.Print("running containers: ")
+	log.Print(containers)
 	composeContainers := make([]string, 0, len(composeServices))
 	servicesMap := make(map[string]bool)
 	for _, service := range composeServices {
@@ -62,10 +67,10 @@ func (dcs *DockerComposeManager) GetRunningComposeServices(composeServices []str
 	return composeContainers
 }
 
-func (dcs *DockerComposeManager) DeleteCompose(id string) error {
-	return dcs.composeRepo.Delete(id)
+func (dcm *DockerComposeManager) DeleteCompose(id string) error {
+	return dcm.composeRepo.Delete(id)
 }
 
-func (dcs *DockerComposeManager) DeleteAllComposes() error {
-	return dcs.composeRepo.DeleteAll()
+func (dcm *DockerComposeManager) DeleteAllComposes() error {
+	return dcm.composeRepo.DeleteAll()
 }

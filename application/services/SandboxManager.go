@@ -3,8 +3,8 @@ package services
 import (
 	"GoDockerSandbox/domain/model"
 	"GoDockerSandbox/domain/repo"
-	"bufio"
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -69,16 +69,22 @@ func (sm *SandboxManager) UpdateSandbox(id string, yaml string) (string, error) 
 }
 
 func (sm *SandboxManager) RunSandbox(id string, yaml string) (containers []string, err error) {
-	filePath := fmt.Sprintf("~/docker_sandbox/%s/docker-compose.yaml", id)
-	file, err := os.Create(filePath)
-	defer file.Close()
-	w := bufio.NewWriter(file)
-	_, err = w.WriteString(yaml)
+	pwd, _ := os.Getwd()
+	filePath := fmt.Sprintf("%s/docker_sandboxes/%s", pwd, id)
+	if err = os.MkdirAll(filePath, 0755); err != nil {
+		log.Fatal(fmt.Sprintf("error creating directory: %s", err.Error()))
+		return []string{}, err
+	}
+
+	composeAddr := fmt.Sprintf("%s/docker-compose.yaml", filePath)
+
+	err = os.WriteFile(composeAddr, []byte(yaml), 0755)
 	if err != nil {
+		log.Fatal(fmt.Sprintf("error creating docker-compose.yaml: %s", err.Error()))
 		return
 	}
 
-	err = sm.dcm.RunDockerCompose(filePath)
+	err = sm.dcm.RunDockerCompose(composeAddr)
 	if err != nil {
 		return []string{}, err
 	}
@@ -89,12 +95,15 @@ func (sm *SandboxManager) RunSandbox(id string, yaml string) (containers []strin
 	}
 	composeServices := compose.Services
 
-	containers = sm.dcm.composeClient.GetRunningComposeServices(composeServices)
+	containers = sm.dcm.GetRunningComposeServices(composeServices)
 	return
 }
 
 func (sm *SandboxManager) StopSandbox(id string) (err error) {
-	filePath := fmt.Sprintf("/docker_sandbox/%s/docker-compose.yaml", id)
-	err = sm.dcm.composeClient.StopDockerCompose(filePath)
+	pwd, _ := os.Getwd()
+	filePath := fmt.Sprintf("%s/docker_sandboxes/%s", pwd, id)
+	composeAddr := fmt.Sprintf("%s/docker-compose.yaml", filePath)
+
+	err = sm.dcm.composeClient.StopDockerCompose(composeAddr)
 	return
 }

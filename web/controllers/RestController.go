@@ -98,8 +98,12 @@ func (rc *RestController) RunCompose(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.HTML(http.StatusOK, "running_sandbox.html", containers)
+	c.JSON(http.StatusOK, gin.H{"containers": containers})
 }
+
+/*func (rc *RestController) GetRunningContainers(c *gin.Context) {
+	// todo
+}*/
 
 func (rc *RestController) StopCompose(c *gin.Context) {
 	id := c.Param("id")

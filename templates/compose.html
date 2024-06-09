@@ -38,8 +38,13 @@
     <script>
         const runButton = document.getElementById('runButton');
         runButton.addEventListener('click', () => {
-            fetch(`/compose/${id}/run`, {
-                method: 'POST'
+            const uri = `/compose/${id}/run`;
+            fetch(uri, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain'
+                },
+                body: document.querySelector('textarea').value
             }).catch(error => {
                     console.error('Internal Server Error:', error);
             });
