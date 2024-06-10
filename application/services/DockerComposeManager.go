@@ -15,7 +15,7 @@ type DockerComposeManager struct {
 	composeClient *docker_compose.DockerComposeClient
 }
 
-func NewDockerComposeService(repo repo.ComposeRepo) *DockerComposeManager {
+func NewDockerComposeManager(repo repo.ComposeRepo) *DockerComposeManager {
 	return &DockerComposeManager{
 		composeRepo:   repo,
 		yamlBuilder:   services.NewDockerComposeHelper(),

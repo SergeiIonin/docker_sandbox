@@ -3,6 +3,7 @@ package services
 import (
 	"GoDockerSandbox/domain/model"
 	"GoDockerSandbox/domain/repo"
+	"GoDockerSandbox/domain/validation"
 	"fmt"
 	"log"
 	"os"
@@ -11,19 +12,23 @@ import (
 type SandboxManager struct {
 	dim *DockerImageManager
 	dcm *DockerComposeManager
+	v   *validation.Validations
 }
 
 func NewSandboxManager(composeRepo repo.ComposeRepo) *SandboxManager {
-	dis := NewDockerImageManager()
-	dcs := NewDockerComposeService(composeRepo)
 	return &SandboxManager{
-		dim: dis,
-		dcm: dcs,
+		dim: NewDockerImageManager(),
+		dcm: NewDockerComposeManager(composeRepo),
+		v:   validation.NewValidations(),
 	}
 }
 
-func (sm *SandboxManager) GetImages() []string {
-	return sm.dim.GetImages()
+func (sm *SandboxManager) GetImages(sandboxName string) (err error, images []string) {
+	err, _ = sm.v.ValidateSandboxName(sandboxName)
+	if err != nil {
+		return err, []string{}
+	}
+	return nil, sm.dim.GetImages()
 }
 
 func (sm *SandboxManager) SaveSandbox(name string, images []model.DockerService) (id string, err error) {

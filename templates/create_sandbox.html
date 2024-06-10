@@ -14,7 +14,12 @@
                 .then(response => {
                     if (response.status === 200) {
                         window.location.href = uri;
-                    } else {
+                    } else if (response.status === 400) {
+                        response.json().then(data => {
+                            alert(data.error);
+                        });
+                    }
+                    else {
                         console.error('Internal Server Error:', response.status);
                     }
                 })
