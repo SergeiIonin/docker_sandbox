@@ -119,5 +119,7 @@ func (rc *RestController) StopCompose(c *gin.Context) {
 		return
 	}
 
-	c.HTML(http.StatusOK, "running_sandbox.html", []string{}) // fixme
+	containers := rc.sbox.GetRunningSandboxServices(id)
+
+	c.HTML(http.StatusOK, "running_sandbox.html", containers)
 }

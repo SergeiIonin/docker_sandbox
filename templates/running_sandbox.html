@@ -7,7 +7,41 @@
     <button type="button">
         {{$name}}
     </button>
+    <br>
     {{end}}
+    <br>
+
+    <script>
+        function stopCompose() {
+            const pathSegments = window.location.pathname.split('/');
+            const composeId = pathSegments[pathSegments.length - 2];
+            const containersUri = `/compose/${composeId}/containers`;
+
+            fetch(`/compose/${composeId}/stop`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({sandbox_id: composeId}) // Adjust payload if necessary
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert(`Compose ${composeId} will be stopped`);
+                    } else {
+                        alert(`Failed to stop Compose ${composeId}`);
+                    }
+                })
+                .then(() => {
+                    window.location.href = containersUri;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error stopping the compose.');
+                });
+        }
+    </script>
+    <button onclick="stopCompose()">Stop</button>
+
 </head>
 <body>
 
