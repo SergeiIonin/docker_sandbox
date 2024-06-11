@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Running Containers</title>
-    {{range .}}
+    {{range $index, $name := .}}
+    <button type="button">
+        {{$name}}
+    </button>
     {{end}}
 </head>
 <body>

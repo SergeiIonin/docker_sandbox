@@ -31,7 +31,7 @@ func main() {
 	router.POST("/compose/update/:id", rc.UpdateCompose)
 	router.GET("/compose/:id", rc.GetCompose)
 	router.POST("/compose/:id/run", rc.RunCompose)
-	//router.POST("/compose/:id/containers", rc.GetRunningContainers)
+	router.GET("/compose/:id/containers", rc.GetRunningContainers)
 	router.POST("/compose/:id/stop", rc.StopCompose)
 
 	router.Run("localhost:8082")

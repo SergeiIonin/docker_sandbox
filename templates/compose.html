@@ -38,13 +38,23 @@
     <script>
         const runButton = document.getElementById('runButton');
         runButton.addEventListener('click', () => {
-            const uri = `/compose/${id}/run`;
-            fetch(uri, {
+            const uriRun = `/compose/${id}/run`;
+            fetch(uriRun, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'text/plain'
                 },
                 body: document.querySelector('textarea').value
+            }).then(response => {
+                if (response.status === 200) {
+                    const uriGet = `/compose/${id}/containers`;
+                    fetch(uriGet).then( response => {
+                            window.location.href = uriGet;
+                        }
+                    ).catch(error => {
+                        console.error('Internal Server Error:', error);
+                    });
+                }
             }).catch(error => {
                     console.error('Internal Server Error:', error);
             });

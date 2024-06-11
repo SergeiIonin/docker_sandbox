@@ -5,7 +5,9 @@ import (
 	"GoDockerSandbox/domain/repo"
 	"GoDockerSandbox/domain/services"
 	"GoDockerSandbox/infra/clients/docker_compose"
+	"fmt"
 	"log"
+	"os"
 	"strings"
 )
 
@@ -48,8 +50,29 @@ func (dcm *DockerComposeManager) UpdateCompose(id string, yaml string) (string, 
 	return dcm.composeRepo.Update(id, yaml)
 }
 
-func (dcm *DockerComposeManager) RunDockerCompose(filePath string) error {
-	return dcm.composeClient.RunDockerCompose(filePath)
+func (dcm *DockerComposeManager) RunDockerCompose(id string) (err error) {
+	pwd, _ := os.Getwd()
+	filePath := fmt.Sprintf("%s/docker_sandboxes/%s", pwd, id)
+	if err = os.MkdirAll(filePath, 0755); err != nil {
+		log.Fatal(fmt.Sprintf("error creating directory: %s", err.Error()))
+		return
+	}
+
+	composeAddr := fmt.Sprintf("%s/docker-compose.yaml", filePath)
+
+	compose, err := dcm.composeRepo.Get(id)
+	if err != nil {
+		log.Printf(fmt.Sprintf("error getting compose: %s", err.Error()))
+		return
+	}
+	yaml := compose.Yaml
+
+	err = os.WriteFile(composeAddr, []byte(yaml), 0755)
+	if err != nil {
+		log.Fatal(fmt.Sprintf("error creating docker-compose.yaml: %s", err.Error()))
+		return
+	}
+	return dcm.composeClient.RunDockerCompose(composeAddr)
 }
 
 func (dcm *DockerComposeManager) GetRunningComposeServices(id string) []string {
@@ -57,8 +80,8 @@ func (dcm *DockerComposeManager) GetRunningComposeServices(id string) []string {
 	for i, container := range containers {
 		containers[i] = container[:strings.Index(container, " | ")]
 	}
-	sandboxContainers := make([]string, 0, len(containers))
 
+	sandboxContainers := make([]string, 0, len(containers))
 	for _, container := range containers {
 		if strings.HasPrefix(container, id) {
 			sandboxContainers = append(sandboxContainers, container)

@@ -93,21 +93,22 @@ func (rc *RestController) GetCompose(c *gin.Context) {
 func (rc *RestController) RunCompose(c *gin.Context) {
 	id := c.Param("id")
 
-	yamlRaw, err := c.GetRawData()
-	yaml := string(yamlRaw)
-
-	containers, err := rc.sbox.RunSandbox(id, yaml)
+	err := rc.sbox.RunSandbox(id)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{fmt.Sprintf("error running sandbox %s", id): err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"containers": containers})
+	c.JSON(http.StatusOK, gin.H{"sandbox_id": id})
 }
 
-/*func (rc *RestController) GetRunningContainers(c *gin.Context) {
-	// todo
-}*/
+func (rc *RestController) GetRunningContainers(c *gin.Context) {
+	id := c.Param("id")
+
+	containers := rc.sbox.GetRunningSandboxServices(id)
+
+	c.HTML(http.StatusOK, "running_sandbox.html", containers)
+}
 
 func (rc *RestController) StopCompose(c *gin.Context) {
 	id := c.Param("id")

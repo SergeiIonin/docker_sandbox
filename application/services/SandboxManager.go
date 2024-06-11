@@ -5,7 +5,6 @@ import (
 	"GoDockerSandbox/domain/repo"
 	"GoDockerSandbox/domain/validation"
 	"fmt"
-	"log"
 	"os"
 )
 
@@ -73,29 +72,13 @@ func (sm *SandboxManager) UpdateSandbox(id string, yaml string) (string, error) 
 	return id, err
 }
 
-func (sm *SandboxManager) RunSandbox(id string, yaml string) (containers []string, err error) {
-	pwd, _ := os.Getwd()
-	filePath := fmt.Sprintf("%s/docker_sandboxes/%s", pwd, id)
-	if err = os.MkdirAll(filePath, 0755); err != nil {
-		log.Fatal(fmt.Sprintf("error creating directory: %s", err.Error()))
-		return []string{}, err
-	}
-
-	composeAddr := fmt.Sprintf("%s/docker-compose.yaml", filePath)
-
-	err = os.WriteFile(composeAddr, []byte(yaml), 0755)
-	if err != nil {
-		log.Fatal(fmt.Sprintf("error creating docker-compose.yaml: %s", err.Error()))
-		return
-	}
-
-	err = sm.dcm.RunDockerCompose(composeAddr)
-	if err != nil {
-		return []string{}, err
-	}
-
-	containers = sm.dcm.GetRunningComposeServices(id)
+func (sm *SandboxManager) RunSandbox(id string) (err error) {
+	err = sm.dcm.RunDockerCompose(id)
 	return
+}
+
+func (sm *SandboxManager) GetRunningSandboxServices(id string) []string {
+	return sm.dcm.GetRunningComposeServices(id)
 }
 
 func (sm *SandboxManager) StopSandbox(id string) (err error) {
