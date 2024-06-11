@@ -94,13 +94,7 @@ func (sm *SandboxManager) RunSandbox(id string, yaml string) (containers []strin
 		return []string{}, err
 	}
 
-	compose, err := sm.dcm.GetCompose(id)
-	if err != nil {
-		return []string{}, err
-	}
-	composeServices := compose.Services
-
-	containers = sm.dcm.GetRunningComposeServices(composeServices)
+	containers = sm.dcm.GetRunningComposeServices(id)
 	return
 }
 

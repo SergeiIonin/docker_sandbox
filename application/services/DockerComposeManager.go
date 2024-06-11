@@ -24,9 +24,13 @@ func NewDockerComposeManager(repo repo.ComposeRepo) *DockerComposeManager {
 }
 
 func (dcm *DockerComposeManager) BuildComposeYaml(services []model.DockerService) (yaml string) {
+	//_ = dcm.sanitizeImages(services) // todo
 	yaml = dcm.yamlBuilder.BuildComposeYaml(services)
 	return
 }
+
+// todo
+// sanitize images for the case when user just clicked on the buttons to add ports/networks/envs without entering any data
 
 func (dcm *DockerComposeManager) GetCompose(id string) (model.Compose, error) {
 	return dcm.composeRepo.Get(id)
@@ -48,23 +52,21 @@ func (dcm *DockerComposeManager) RunDockerCompose(filePath string) error {
 	return dcm.composeClient.RunDockerCompose(filePath)
 }
 
-func (dcm *DockerComposeManager) GetRunningComposeServices(composeServices []string) []string {
+func (dcm *DockerComposeManager) GetRunningComposeServices(id string) []string {
 	containers := dcm.composeClient.GetRunningContainers()
-	log.Print("running containers: ")
-	log.Print(containers)
-	composeContainers := make([]string, 0, len(composeServices))
-	servicesMap := make(map[string]bool)
-	for _, service := range composeServices {
-		servicesMap[service] = true
+	for i, container := range containers {
+		containers[i] = container[:strings.Index(container, " | ")]
 	}
-	var containerName string
+	sandboxContainers := make([]string, 0, len(containers))
+
 	for _, container := range containers {
-		containerName = container[:strings.Index(container, " | ")]
-		if servicesMap[containerName] {
-			composeContainers = append(composeContainers, container)
+		if strings.HasPrefix(container, id) {
+			sandboxContainers = append(sandboxContainers, container)
 		}
 	}
-	return composeContainers
+
+	log.Printf("sandbox %s containers: %v", id, sandboxContainers)
+	return sandboxContainers
 }
 
 func (dcm *DockerComposeManager) DeleteCompose(id string) error {

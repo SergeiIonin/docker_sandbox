@@ -1,0 +1,30 @@
+
+version: '3.8'
+
+services:
+  test_service_0:
+    image: test_image_0
+    ports:
+      - 8080:8080
+    environment:
+      ENV_0: VALUE_0
+    networks:
+      - test_network_0
+
+  test_service_1:
+    image: test_image_1
+    ports:
+      - 9090:9090
+      - 1234:1290
+    environment:
+      ENV_1: VALUE_1
+      ENV_2: VALUE_2
+    networks:
+      - test_network_0
+      - test_network_1
+
+networks:
+  test_network_0:
+    external: true
+  test_network_1:
+    external: true

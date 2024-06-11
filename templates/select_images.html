@@ -102,7 +102,9 @@
             envFields.forEach(envField => {
                 const key = envField.querySelector('.env-key').value;
                 const value = envField.querySelector('.env-value').value;
-                envs[key] = value;
+                if (key != null && key !== "" && value != null && value !== "") {
+                    envs[key] = value;
+                }
             });
             return envs;
         }
@@ -113,7 +115,9 @@
             portFields.forEach(portField => {
                 const hostPort      = portField.querySelector('.host-port').value;
                 const containerPort = portField.querySelector('.container-port').value;
-                ports.push(hostPort + ":" + containerPort);
+                if (hostPort != null && hostPort !== "" && containerPort != null && containerPort !== "") {
+                    ports.push(hostPort + ":" + containerPort);
+                }
             });
             return ports;
         }
@@ -123,7 +127,9 @@
             const networks = [];
             networkFields.forEach(networkField => {
                 const network = networkField.querySelector('.network').value;
-                networks.push(network);
+                if (network != null && network !== "") {
+                    networks.push(network);
+                }
             });
             return networks;
         }

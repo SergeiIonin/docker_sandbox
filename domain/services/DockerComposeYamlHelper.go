@@ -16,6 +16,9 @@ func NewDockerComposeHelper() *DockerComposeYamlHelper {
 }
 
 func (dcyh *DockerComposeYamlHelper) buildEnvironmentYaml(environment map[string]string) (envYaml string) {
+	if (environment == nil) || (len(environment) == 0) {
+		return
+	}
 	envYaml =
 		indent4 + "environment:\n"
 	for key, value := range environment {
@@ -25,8 +28,10 @@ func (dcyh *DockerComposeYamlHelper) buildEnvironmentYaml(environment map[string
 }
 
 func (dcyh *DockerComposeYamlHelper) buildPortsYaml(ports []string) (portsYaml string) {
-	portsYaml =
-		indent4 + "ports:\n"
+	if len(ports) == 0 {
+		return
+	}
+	portsYaml = indent4 + "ports:\n"
 	for _, port := range ports {
 		portsYaml += indent6 + "- " + port + "\n"
 	}
@@ -35,6 +40,9 @@ func (dcyh *DockerComposeYamlHelper) buildPortsYaml(ports []string) (portsYaml s
 
 // build networks yaml
 func (dcyh *DockerComposeYamlHelper) buildNetworksYaml(networks []string) (networksYaml string) {
+	if len(networks) == 0 {
+		return
+	}
 	networksYaml =
 		indent4 + "networks:\n"
 	for _, network := range networks {
@@ -60,9 +68,11 @@ func (dcyh *DockerComposeYamlHelper) buildExternalNetworksYaml(services []model.
 			nets[network] = true
 		}
 	}
+	if len(nets) == 0 {
+		return
+	}
 
-	extNetworksYaml =
-		"networks:\n"
+	extNetworksYaml = "networks:\n"
 	for network := range nets {
 		extNetworksYaml += indent2 + network + ":\n" +
 			indent4 + "external: true\n"
