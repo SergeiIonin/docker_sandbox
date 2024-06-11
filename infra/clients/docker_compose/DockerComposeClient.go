@@ -26,7 +26,7 @@ func (dcc *DockerComposeClient) RunDockerCompose(filePath string) error {
 }
 
 func (dcc *DockerComposeClient) StopDockerCompose(filePath string) error {
-	cmd := exec.Command("docker-compose", "-f", filePath, "down", "-d")
+	cmd := exec.Command("docker-compose", "-f", filePath, "down")
 	err := cmd.Run()
 	if err != nil {
 		log.Printf("Error stopping docker-compose: %v", err)
