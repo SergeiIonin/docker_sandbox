@@ -1,6 +1,7 @@
 package docker_compose
 
 import (
+	"GoDockerSandbox/domain/model"
 	"GoDockerSandbox/infra/clients/docker"
 	"log"
 	"os/exec"
@@ -11,13 +12,32 @@ type DockerComposeClient struct {
 }
 
 func NewDockerComposeClient() *DockerComposeClient {
-	return &DockerComposeClient{}
+	dc := docker.NewDockerClient()
+	return &DockerComposeClient{
+		dc: dc,
+	}
 }
 
-func (dcc *DockerComposeClient) RunDockerCompose(filePath string) error {
-	log.Printf("Running docker-compose for %s", filePath)
-	cmd := exec.Command("docker-compose", "-f", filePath, "up", "-d")
-	err := cmd.Run()
+func (dcc *DockerComposeClient) createNetworks(compose model.Compose) (err error) {
+	nets := compose.Networks
+	for _, net := range nets {
+		_, err = dcc.dc.CreateNetwork(net)
+		if err != nil {
+			return
+		}
+	}
+	return nil
+}
+
+func (dcc *DockerComposeClient) RunDockerCompose(composeAddress string, compose model.Compose) (err error) {
+	if err = dcc.createNetworks(compose); err != nil {
+		log.Printf("Error creating networks: %v", err)
+		return
+	}
+
+	log.Printf("Running docker-compose for %s", composeAddress)
+	cmd := exec.Command("docker-compose", "-f", composeAddress, "up", "-d")
+	err = cmd.Run()
 	if err != nil {
 		log.Printf("Error running docker-compose: %v", err)
 		return err

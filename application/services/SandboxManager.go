@@ -30,26 +30,33 @@ func (sm *SandboxManager) GetImages(sandboxName string) (err error, images []str
 	return nil, sm.dim.GetImages()
 }
 
-func (sm *SandboxManager) SaveSandbox(name string, images []model.DockerService) (id string, err error) {
-	fmt.Printf("%v\n", images)
-	services := make([]string, 0, len(images))
-	appImageIds := make([]string, 0, len(images))
-	infraImageIds := make([]string, 0, len(images))
+func (sm *SandboxManager) SaveSandbox(name string, dockerServices []model.DockerService) (id string, err error) {
+	fmt.Printf("%v\n", dockerServices)
+	services := make([]string, 0, len(dockerServices))
+	appImageIds := make([]string, 0, len(dockerServices))
+	infraImageIds := make([]string, 0, len(dockerServices))
+	networks := make([]string, 0, len(dockerServices))
 
-	for _, image := range images {
-		services = append(services, image.Name)
-		if image.IsInfra {
-			infraImageIds = append(infraImageIds, image.Id)
+	getNetworks := func(service model.DockerService) []string {
+		return service.Networks
+	}
+
+	for _, srv := range dockerServices {
+		services = append(services, srv.Name)
+		networks = append(networks, getNetworks(srv)...)
+		if srv.IsInfra {
+			infraImageIds = append(infraImageIds, srv.Id)
 		} else {
-			appImageIds = append(appImageIds, image.Id)
+			appImageIds = append(appImageIds, srv.Id)
 		}
 	}
-	yaml := sm.dcm.BuildComposeYaml(images)
+	yaml := sm.dcm.BuildComposeYaml(dockerServices)
 
 	id, err = sm.dcm.SaveCompose(model.Compose{
 		Id:          name,
 		Name:        name,
 		Services:    services,
+		Networks:    networks,
 		AppImages:   appImageIds,
 		InfraImages: infraImageIds,
 		Yaml:        yaml,

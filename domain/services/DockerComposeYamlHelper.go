@@ -100,15 +100,20 @@ func (dcyh *DockerComposeYamlHelper) BuildComposeYaml(services []model.DockerSer
 }
 
 func (dcyh *DockerComposeYamlHelper) ParseYaml(id string, composeYaml string) (err error, compose model.Compose) {
-	var composeRaw composeRaw
-	err = yaml.Unmarshal([]byte(composeYaml), &composeRaw)
+	var compRaw composeRaw
+	err = yaml.Unmarshal([]byte(composeYaml), &compRaw)
 
 	compose.Name = id
 	compose.Id = id
 	compose.Yaml = composeYaml
 
-	compose.Services = make([]string, 0, len(composeRaw.Services))
-	for serviceName, _ := range composeRaw.Services {
+	compose.Networks = make([]string, 0, len(compRaw.Networks))
+	for net, _ := range compRaw.Networks {
+		compose.Networks = append(compose.Networks, net)
+	}
+
+	compose.Services = make([]string, 0, len(compRaw.Services))
+	for serviceName, _ := range compRaw.Services {
 		compose.Services = append(compose.Services, serviceName)
 	}
 
