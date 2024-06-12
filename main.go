@@ -11,7 +11,8 @@ import (
 )
 
 func main() {
-	composeRepo, err := repo.NewComposeMongoRepo()
+	mongoUri := "mongodb://localhost:2717"
+	composeRepo, err := repo.NewComposeMongoRepo(mongoUri)
 	if err != nil {
 		panic(err) // fixme
 	}

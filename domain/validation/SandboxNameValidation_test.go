@@ -23,6 +23,7 @@ func TestSandboxNameValidation(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
+		t.Logf("Running test case: %s\n", tc.name)
 		t.Run(tc.name, func(t *testing.T) {
 			err, result := snv.ValidateSandboxName(tc.input)
 			if result != tc.expected && err != nil {

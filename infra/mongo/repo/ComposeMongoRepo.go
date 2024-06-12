@@ -20,8 +20,8 @@ type ComposeMongoRepo struct {
 	formatter  *formatters.ComposeMongoFormatter
 }
 
-func NewComposeMongoRepo() (*ComposeMongoRepo, error) {
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:2717")
+func NewComposeMongoRepo(uri string) (*ComposeMongoRepo, error) {
+	clientOptions := options.Client().ApplyURI(uri)
 
 	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
