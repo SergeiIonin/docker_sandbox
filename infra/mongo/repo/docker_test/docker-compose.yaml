@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  mongo_test:
+    image: mongo:latest
+    container_name: mongo_test
+    ports:
+      - 2727:27017
