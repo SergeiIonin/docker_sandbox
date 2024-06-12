@@ -8,13 +8,15 @@ import (
 	tc "github.com/testcontainers/testcontainers-go/modules/compose"
 	"github.com/testcontainers/testcontainers-go/wait"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 )
 
 func TestComposeMongoRepo_Save(t *testing.T) {
 	pwd, _ := os.Getwd()
-	dockerComposeDir := fmt.Sprintf("%s/%s", pwd, "/docker_test/docker-compose.yaml")
+	projectRoot := filepath.Dir(filepath.Dir(filepath.Dir(pwd)))
+	dockerComposeDir := fmt.Sprintf("%s/infra/docker_test/docker-compose.yaml", projectRoot)
 	identifier := tc.StackIdentifier("compose_mongo_repo_test")
 	mongoCompose, err := tc.NewDockerComposeWith(tc.WithStackFiles(dockerComposeDir), identifier)
 

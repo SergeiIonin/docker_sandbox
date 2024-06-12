@@ -13,21 +13,21 @@ import (
 
 type DockerComposeManager struct {
 	composeRepo   repo.ComposeRepo
-	yamlBuilder   *services.DockerComposeYamlHelper
+	yamlHelper    *services.DockerComposeYamlHelper
 	composeClient *docker_compose.DockerComposeClient
 }
 
 func NewDockerComposeManager(repo repo.ComposeRepo) *DockerComposeManager {
 	return &DockerComposeManager{
 		composeRepo:   repo,
-		yamlBuilder:   services.NewDockerComposeHelper(),
+		yamlHelper:    services.NewDockerComposeHelper(),
 		composeClient: docker_compose.NewDockerComposeClient(),
 	}
 }
 
 func (dcm *DockerComposeManager) BuildComposeYaml(services []model.DockerService) (yaml string) {
 	//_ = dcm.sanitizeImages(services) // todo
-	yaml = dcm.yamlBuilder.BuildComposeYaml(services)
+	yaml = dcm.yamlHelper.BuildComposeYaml(services)
 	return
 }
 
@@ -42,12 +42,16 @@ func (dcm *DockerComposeManager) GetAllComposes() ([]model.Compose, error) {
 	return dcm.composeRepo.GetAll()
 }
 
-func (dcm *DockerComposeManager) SaveCompose(compose model.Compose) (string, error) {
+func (dcm *DockerComposeManager) SaveCompose(compose model.Compose) (id string, err error) {
 	return dcm.composeRepo.Save(compose)
 }
 
 func (dcm *DockerComposeManager) UpdateCompose(id string, yaml string) (string, error) {
-	return dcm.composeRepo.Update(id, yaml)
+	err, composeUpd := dcm.yamlHelper.ParseYaml(id, yaml)
+	if err != nil {
+		return id, err
+	}
+	return dcm.composeRepo.Upsert(composeUpd)
 }
 
 func (dcm *DockerComposeManager) RunDockerCompose(id string) (err error) {
