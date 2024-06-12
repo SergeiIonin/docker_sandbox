@@ -2,10 +2,12 @@ package services
 
 import (
 	"GoDockerSandbox/domain/model"
+	"GoDockerSandbox/domain/test_utils"
 	"testing"
 )
 
 func TestDockerComposeYamlHelper(t *testing.T) {
+	testUtils := test_utils.NewTestUtils()
 	dcyh := NewDockerComposeHelper()
 
 	service_0 := model.DockerService{
@@ -37,7 +39,7 @@ func TestDockerComposeYamlHelper(t *testing.T) {
 
 	composeYaml := dcyh.BuildComposeYaml(services)
 
-	expectedYaml := `
+	testYaml := `
 version: '3.8'
 
 services:
@@ -69,7 +71,15 @@ networks:
     external: true
 `
 
-	if composeYaml != expectedYaml {
-		t.Errorf("got:\n%s\nwant:\n%s", composeYaml, expectedYaml)
+	if composeYaml != testYaml {
+		t.Errorf("got:\n%s\nwant:\n%s", composeYaml, testYaml)
 	}
+
+	err, composeFromYaml := dcyh.ParseYaml("test", testYaml)
+	t.Logf("Compose from yaml: %v\n", composeFromYaml)
+	testUtils.CompareSlices(composeFromYaml.Services, []string{"test_service_0", "test_service_1"}, true, t)
+	if err != nil {
+		t.Errorf("Failed to parse yaml: %v", err)
+	}
+
 }

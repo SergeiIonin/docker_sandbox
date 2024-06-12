@@ -2,6 +2,7 @@ package services
 
 import (
 	"GoDockerSandbox/domain/model"
+	"gopkg.in/yaml.v2"
 )
 
 type DockerComposeYamlHelper struct {
@@ -96,4 +97,37 @@ func (dcyh *DockerComposeYamlHelper) BuildComposeYaml(services []model.DockerSer
 		dcyh.buildExternalNetworksYaml(services)
 
 	return composeYaml
+}
+
+func (dcyh *DockerComposeYamlHelper) ParseYaml(id string, composeYaml string) (err error, compose model.Compose) {
+	var composeRaw composeRaw
+	err = yaml.Unmarshal([]byte(composeYaml), &composeRaw)
+
+	compose.Name = id
+	compose.Id = id
+	compose.Yaml = composeYaml
+
+	compose.Services = make([]string, 0, len(composeRaw.Services))
+	for serviceName, _ := range composeRaw.Services {
+		compose.Services = append(compose.Services, serviceName)
+	}
+
+	return
+}
+
+type composeRaw struct {
+	Version  string
+	Services map[string]serviceRaw
+	Networks map[string]networkRaw
+}
+
+type serviceRaw struct {
+	Image       string
+	Ports       []string
+	Environment map[string]string
+	Networks    []string
+}
+
+type networkRaw struct {
+	External bool
 }
