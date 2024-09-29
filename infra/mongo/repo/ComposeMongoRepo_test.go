@@ -24,7 +24,10 @@ func TestComposeMongoRepo_Save(t *testing.T) {
 		t.Fatal("Failed to create compose: ", err)
 	}
 
-	mongoCompose.Up(context.Background())
+	err = mongoCompose.Up(context.Background())
+	if err != nil {
+		t.Fatal("Failed to start compose: ", err)
+	}
 	t.Cleanup(func() {
 		assert.NoError(t, mongoCompose.Down(context.Background(), tc.RemoveOrphans(true), tc.RemoveImagesLocal), "compose.Down()")
 	})
@@ -64,13 +67,13 @@ func TestComposeMongoRepo_Save(t *testing.T) {
 		// Add more test cases as needed
 	}
 
-	for _, tc := range testCases {
-		t.Logf("Running test case: %s\n", tc.name)
-		t.Run(tc.name, func(t *testing.T) {
-			id, err := repo.Save(tc.compose)
+	for _, testCase := range testCases {
+		t.Logf("Running test case: %s\n", testCase.name)
+		t.Run(testCase.name, func(t *testing.T) {
+			id, err := repo.Save(testCase.compose)
 			t.Logf("Saved compose with id: %s\n", id)
-			if (err != nil) != tc.wantErr {
-				t.Errorf("ComposeMongoRepo.Save() error = %v, wantErr %v", err, tc.wantErr)
+			if (err != nil) != testCase.wantErr {
+				t.Errorf("ComposeMongoRepo.Save() error = %v, wantErr %v", err, testCase.wantErr)
 			}
 			compose, err := repo.Get(id)
 			if err != nil || compose.Name != "test_0" {
