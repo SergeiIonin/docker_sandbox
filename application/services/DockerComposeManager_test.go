@@ -80,7 +80,16 @@ networks:
     external: true
 `
 
-	composeTest := model.Compose{"my-compose", "my-compose", []string{"test_service_0", "test_service_1"}, nil, nil, testYaml}
+	composeTest := 
+	model.Compose{
+		Id: "my-compose",
+		Name: "my-compose",
+		Services: []string{"test_service_0", "test_service_1"},
+		Networks: nil,
+		AppImages: nil,
+		InfraImages: nil,
+		Yaml: testYaml,
+	}
 
 	id, err := composeManager.SaveCompose(composeTest)
 
