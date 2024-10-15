@@ -2,12 +2,13 @@ package docker
 
 import (
 	"context"
-	"github.com/docker/docker/api/types/network"
-	"github.com/docker/docker/client"
 	"log"
 	"os/exec"
 	"slices"
 	"strings"
+
+	"github.com/docker/docker/api/types/network"
+	"github.com/docker/docker/client"
 )
 
 type DockerClient struct {

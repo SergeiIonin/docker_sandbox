@@ -2,9 +2,10 @@ package docker
 
 import (
 	"context"
-	"github.com/docker/docker/api/types/network"
 	"slices"
 	"testing"
+
+	"github.com/docker/docker/api/types/network"
 )
 
 func TestDockerClient(t *testing.T) {

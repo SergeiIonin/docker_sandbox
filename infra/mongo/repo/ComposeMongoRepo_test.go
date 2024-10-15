@@ -4,13 +4,14 @@ import (
 	"GoDockerSandbox/domain/model"
 	"context"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	tc "github.com/testcontainers/testcontainers-go/modules/compose"
-	"github.com/testcontainers/testcontainers-go/wait"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	tc "github.com/testcontainers/testcontainers-go/modules/compose"
+	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 func TestComposeMongoRepo_Save(t *testing.T) {

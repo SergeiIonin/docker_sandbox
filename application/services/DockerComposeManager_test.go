@@ -6,13 +6,14 @@ import (
 	"GoDockerSandbox/infra/mongo/repo"
 	"context"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	tc "github.com/testcontainers/testcontainers-go/modules/compose"
-	"github.com/testcontainers/testcontainers-go/wait"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	tc "github.com/testcontainers/testcontainers-go/modules/compose"
+	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 func TestDockerComposeManager_Save(t *testing.T) {
@@ -80,16 +81,16 @@ networks:
     external: true
 `
 
-	composeTest := 
-	model.Compose{
-		Id: "my-compose",
-		Name: "my-compose",
-		Services: []string{"test_service_0", "test_service_1"},
-		Networks: nil,
-		AppImages: nil,
-		InfraImages: nil,
-		Yaml: testYaml,
-	}
+	composeTest :=
+		model.Compose{
+			Id:          "my-compose",
+			Name:        "my-compose",
+			Services:    []string{"test_service_0", "test_service_1"},
+			Networks:    nil,
+			AppImages:   nil,
+			InfraImages: nil,
+			Yaml:        testYaml,
+		}
 
 	id, err := composeManager.SaveCompose(composeTest)
 

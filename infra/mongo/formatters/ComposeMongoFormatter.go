@@ -2,6 +2,7 @@ package formatters
 
 import (
 	"GoDockerSandbox/domain/model"
+
 	"go.mongodb.org/mongo-driver/bson"
 )
 

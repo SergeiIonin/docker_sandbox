@@ -2,9 +2,10 @@ package validation
 
 import (
 	"errors"
-	"github.com/go-playground/validator/v10"
 	"log"
 	"regexp"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type SandboxNameValidation struct {
