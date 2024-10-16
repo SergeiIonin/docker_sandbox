@@ -131,8 +131,13 @@ networks:
 `
 
 	idUpd, err := composeManager.UpdateCompose(id, testUpdYaml)
+	if err != nil {
+		t.Fatalf("Failed to update compose: %v", err)
+	}
 	composeUpd, err := composeManager.GetCompose(idUpd)
-
+	if err != nil {
+		t.Fatalf("Failed to get compose: %v", err)
+	}
 	servicesExpected := []string{"test_service_3", "test_service_4"}
 	testUtils.CompareSlices(composeUpd.Services, servicesExpected, true, t)
 	if composeUpd.Yaml != testUpdYaml {

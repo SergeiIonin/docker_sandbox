@@ -81,6 +81,10 @@ func (dcm *DockerComposeManager) RunDockerCompose(id string) (err error) {
 		return
 	}
 	composeAddress, err := dcm.createDockerComposeFile(compose)
+	if err != nil {
+		log.Printf("error creating docker-compose.yaml: %s", err.Error())
+		return
+	}
 	return dcm.composeClient.RunDockerCompose(composeAddress, compose)
 }
 
