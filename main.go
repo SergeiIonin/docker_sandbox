@@ -5,6 +5,7 @@ import (
 	"GoDockerSandbox/infra/mongo/repo"
 	"GoDockerSandbox/web/controllers"
 
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -35,5 +36,8 @@ func main() {
 	router.GET("/compose/:id/containers", rc.GetRunningContainers)
 	router.POST("/compose/:id/stop", rc.StopCompose)
 
-	router.Run("localhost:8082")
+	err = router.Run("localhost:8082")
+	if err != nil {
+    	log.Fatalf("Failed to run server: %v", err)
+	}
 }

@@ -31,5 +31,7 @@ func TestDockerClient(t *testing.T) {
 		t.Errorf("Error creating network: %v", err)
 	}
 
-	dc.apiClient.NetworkRemove(context.Background(), netName)
+	if err = dc.apiClient.NetworkRemove(context.Background(), netName); err != nil {
+		t.Errorf("Error removing network: %v", err)
+	}
 }

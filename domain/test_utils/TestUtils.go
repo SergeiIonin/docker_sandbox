@@ -20,5 +20,4 @@ func (tu *TestUtils) CompareSlices(left []string, right []string, expectedEqual 
 	if !expectedEqual && res {
 		t.Fatalf("slices %v and %v are equal, but different slices expected", left, right)
 	}
-	return
 }
