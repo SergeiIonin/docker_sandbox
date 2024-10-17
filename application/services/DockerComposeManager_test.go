@@ -28,7 +28,10 @@ func TestDockerComposeManager_Save(t *testing.T) {
 		t.Fatal("Failed to create compose: ", err)
 	}
 
-	mongoCompose.Up(context.Background())
+	if err = mongoCompose.Up(context.Background()); err != nil {
+		t.Fatal("Failed to start compose: ", err)
+	}
+
 	t.Cleanup(func() {
 		assert.NoError(t, mongoCompose.Down(context.Background(), tc.RemoveOrphans(true), tc.RemoveImagesLocal), "compose.Down()")
 	})
