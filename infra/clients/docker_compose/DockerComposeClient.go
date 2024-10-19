@@ -1,6 +1,8 @@
 package docker_compose
 
 import (
+	"context"
+
 	"GoDockerSandbox/domain/model"
 	"GoDockerSandbox/infra/clients/docker"
 	"log"
@@ -55,6 +57,6 @@ func (dcc *DockerComposeClient) StopDockerCompose(filePath string) error {
 	return nil
 }
 
-func (dcc *DockerComposeClient) GetRunningContainers() []string {
-	return dcc.dc.GetRunningContainers()
+func (dcc *DockerComposeClient) GetRunningContainers(ctx context.Context) ([]string, error) {
+	return dcc.dc.GetRunningContainers(ctx)
 }

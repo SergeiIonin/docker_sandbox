@@ -90,7 +90,7 @@ func (sm *SandboxManager) RunSandbox(id string) (err error) {
 	return
 }
 
-func (sm *SandboxManager) GetRunningSandboxServices(id string) []string {
+func (sm *SandboxManager) GetRunningSandboxServices(id string) ([]string, error) {
 	return sm.dcm.GetRunningComposeServices(id)
 }
 

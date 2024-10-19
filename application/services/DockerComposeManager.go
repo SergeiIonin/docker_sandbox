@@ -1,6 +1,8 @@
 package services
 
 import (
+	"context"
+
 	"GoDockerSandbox/domain/model"
 	"GoDockerSandbox/domain/repo"
 	"GoDockerSandbox/domain/services"
@@ -88,8 +90,12 @@ func (dcm *DockerComposeManager) RunDockerCompose(id string) (err error) {
 	return dcm.composeClient.RunDockerCompose(composeAddress, compose)
 }
 
-func (dcm *DockerComposeManager) GetRunningComposeServices(id string) []string {
-	containers := dcm.composeClient.GetRunningContainers()
+func (dcm *DockerComposeManager) GetRunningComposeServices(ctx context.Context, id string) ([]string, error) {
+	containers, err := dcm.composeClient.GetRunningContainers(ctx)
+	if err != nil {
+		log.Printf("error getting running containers: %s", err.Error())
+		return []string{}, nil
+	}
 	for i, container := range containers {
 		containers[i] = container[:strings.Index(container, " | ")]
 	}
@@ -102,7 +108,7 @@ func (dcm *DockerComposeManager) GetRunningComposeServices(id string) []string {
 	}
 
 	log.Printf("sandbox %s containers: %v", id, sandboxContainers)
-	return sandboxContainers
+	return sandboxContainers, nil
 }
 
 func (dcm *DockerComposeManager) DeleteCompose(id string) error {

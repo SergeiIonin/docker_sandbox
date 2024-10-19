@@ -3,11 +3,12 @@ package docker
 import (
 	"context"
 	"log"
-	"os/exec"
+	"fmt"
 	"slices"
 	"strings"
 
 	"github.com/docker/docker/api/types/image"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 )
@@ -63,13 +64,12 @@ func (dc *DockerClient) GetImagesByName(ctx context.Context, name string) ([]str
 	return filteredImages, nil
 }
 
-func (dc *DockerClient) GetRunningContainers() []string {
-	return dc.getContainers([]string{})
+func (dc *DockerClient) GetRunningContainers(ctx context.Context) ([]string, error) {
+	return dc.getContainers(ctx, container.ListOptions{})
 }
 
-func (dc *DockerClient) GetAllContainers() []string {
-	args := []string{"-a"}
-	return dc.getContainers(args)
+func (dc *DockerClient) GetAllContainers(ctx context.Context) ([]string, error) {
+	return dc.getContainers(ctx, container.ListOptions{All: true})
 }
 
 func (dc *DockerClient) getNetworks() []string {
@@ -100,17 +100,17 @@ func (dc *DockerClient) CreateNetwork(networkName string) (net string, err error
 	return networkName, nil
 }
 
-func (dc *DockerClient) getContainers(args []string) []string {
-	baseArgs := []string{"container", "ls", "--format", "{{.Names}} | {{.Image}} | {{.Status}}"}
-	cmd := exec.Command("docker", append(baseArgs, args...)...)
-	output, err := cmd.Output()
+func (dc *DockerClient) getContainers(ctx context.Context, opts container.ListOptions) ([]string, error) {
+	containers, err := dc.apiClient.ContainerList(ctx, opts)
 	if err != nil {
-		log.Fatalf("cmd.Run() failed with %s\n", err)
+		log.Printf("error getting containers: %s", err.Error())
+		return []string{}, err
 	}
-	containers := strings.Split(string(output), "\n")
-	if len(containers) == 1 && containers[0] == "" {
-		return []string{}
+
+	containersList := make([]string, 0, len(containers))
+	for _, container := range containers {
+		containersList = append(containersList, fmt.Sprintf("%s | %s | %s", container.Names[0], container.Image, container.State))
 	}
-	containers = containers[0 : len(containers)-1]
-	return containers
+
+	return containersList, nil
 }
