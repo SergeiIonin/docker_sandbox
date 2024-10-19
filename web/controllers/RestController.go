@@ -3,6 +3,7 @@ package controllers
 import (
 	"GoDockerSandbox/application/services"
 	"GoDockerSandbox/domain/model"
+	"context"
 	"fmt"
 	"net/http"
 
@@ -33,7 +34,6 @@ func (rc *RestController) CreateSandbox(c *gin.Context) {
 	c.HTML(http.StatusOK, "create_sandbox.html", nil)
 }
 
-// get images via docker client
 func (rc *RestController) GetImages(c *gin.Context) {
 	images, err := rc.sbox.GetImages(c.Param("name"))
 	if err != nil {
@@ -105,7 +105,11 @@ func (rc *RestController) RunCompose(c *gin.Context) {
 func (rc *RestController) GetRunningContainers(c *gin.Context) {
 	id := c.Param("id")
 
-	containers := rc.sbox.GetRunningSandboxServices(id)
+	containers, err := rc.sbox.GetRunningSandboxServices(context.Background(), id)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
 	c.HTML(http.StatusOK, "running_sandbox.html", containers)
 }
@@ -119,7 +123,11 @@ func (rc *RestController) StopCompose(c *gin.Context) {
 		return
 	}
 
-	containers := rc.sbox.GetRunningSandboxServices(id)
+	containers, err := rc.sbox.GetRunningSandboxServices(context.Background(), id)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
 	c.HTML(http.StatusOK, "running_sandbox.html", containers)
 }
