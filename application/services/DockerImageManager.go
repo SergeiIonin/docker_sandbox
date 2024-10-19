@@ -2,6 +2,7 @@ package services
 
 import (
 	"GoDockerSandbox/infra/clients/docker"
+	"context"
 )
 
 type DockerImageManager struct {
@@ -14,10 +15,10 @@ func NewDockerImageManager() *DockerImageManager {
 	}
 }
 
-func (dcm *DockerImageManager) GetImages() []string {
-	return dcm.dockerClient.GetImages()
+func (dcm *DockerImageManager) GetImages(ctx context.Context) ([]string, error) {
+	return dcm.dockerClient.GetImages(ctx)
 }
 
-func (dcm *DockerImageManager) GetImagesByName(name string) []string {
-	return dcm.dockerClient.GetImagesByName(name)
+func (dcm *DockerImageManager) GetImagesByName(ctx context.Context, name string) ([]string, error) {
+	return dcm.dockerClient.GetImagesByName(ctx, name)
 }

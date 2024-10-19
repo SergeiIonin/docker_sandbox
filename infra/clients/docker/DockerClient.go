@@ -7,6 +7,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 )
@@ -26,24 +27,29 @@ func NewDockerClient() *DockerClient {
 	}
 }
 
-func (dc *DockerClient) GetImages() []string {
-	cmd := exec.Command("docker", "image", "ls", "--format", "{{.Repository}}:{{.Tag}}")
-	output, err := cmd.Output()
+func (dc *DockerClient) GetImages(ctx context.Context) ([]string, error) {
+	summaries, err := dc.apiClient.ImageList(ctx, image.ListOptions{})
 	if err != nil {
-		log.Fatalf("cmd.Run() failed with %s\n", err)
+		log.Printf("failed to fetch images. %s\n", err.Error())
+		return nil, err
 	}
-	images := strings.Split(string(output), "\n")
-	images = images[0 : len(images)-1]
-	return images
+
+	images := make([]string, 0, len(summaries))
+	for _, summary := range summaries {
+		if len(summary.RepoTags) != 0 {
+			images = append(images, summary.RepoTags...)
+		}
+	}
+
+	return images, nil
 }
 
-func (dc *DockerClient) GetImagesByName(name string) []string {
-	cmd := exec.Command("docker", "image", "ls", "--format", "{{.Repository}}:{{.Tag}}")
-	output, err := cmd.Output()
+func (dc *DockerClient) GetImagesByName(ctx context.Context, name string) ([]string, error) {
+	images, err := dc.GetImages(ctx)
 	if err != nil {
-		log.Fatalf("cmd.Run() failed with %s\n", err)
+		return []string{}, err
 	}
-	images := strings.Split(string(output), "\n")
+
 	var filteredImages []string
 	for _, image := range images {
 		if strings.Contains(image, name) {
@@ -53,7 +59,8 @@ func (dc *DockerClient) GetImagesByName(name string) []string {
 	for _, image := range filteredImages {
 		log.Println(image)
 	}
-	return filteredImages
+
+	return filteredImages, nil
 }
 
 func (dc *DockerClient) GetRunningContainers() []string {

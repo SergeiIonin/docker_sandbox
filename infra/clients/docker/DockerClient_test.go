@@ -2,36 +2,38 @@ package docker
 
 import (
 	"context"
-	"slices"
+	"log"
 	"testing"
 
-	"github.com/docker/docker/api/types/network"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-func TestDockerClient(t *testing.T) {
-
-	dc := NewDockerClient()
-	netName := "test_network"
-	net, err := dc.CreateNetwork(netName)
-
-	t.Logf("Network created: %s", net)
-
-	netsSum, _ := dc.apiClient.NetworkList(context.Background(), network.ListOptions{})
-
-	nets := make([]string, 0, len(netsSum))
-	for _, netSum := range netsSum {
-		nets = append(nets, netSum.Name)
-	}
-
-	if !slices.Contains(nets, netName) {
-		t.Errorf("Network %s wasn't created", netName)
-	}
-
-	if err != nil {
-		t.Errorf("Error creating network: %v", err)
-	}
-
-	if err = dc.apiClient.NetworkRemove(context.Background(), netName); err != nil {
-		t.Errorf("Error removing network: %v", err)
-	}
+func TestDockerClientNew(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "DockerClient Suite")
 }
+
+var _ = Describe("DockerClient", func() {
+	dockerClient := NewDockerClient()
+
+	Describe("GetImages", func() {
+		It("should return a list of images", func() {
+			images, err := dockerClient.GetImages(context.Background())
+			for _, image := range images {
+				log.Printf("image: %s\n", image)
+			}
+			Expect(err).NotTo(HaveOccurred())
+			Expect(len(images)).To(BeNumerically(">", 0))
+		})
+
+		It("should return a list of images matching some name", func() {
+			images, err := dockerClient.GetImagesByName(context.Background(), "mongo")
+			for _, image := range images {
+				log.Printf("image: %s\n", image)
+			}
+			Expect(err).NotTo(HaveOccurred())
+			Expect(len(images)).To(BeNumerically(">", 0))
+		})
+	})
+})

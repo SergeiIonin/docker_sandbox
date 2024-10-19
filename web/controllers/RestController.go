@@ -35,7 +35,7 @@ func (rc *RestController) CreateSandbox(c *gin.Context) {
 
 // get images via docker client
 func (rc *RestController) GetImages(c *gin.Context) {
-	err, images := rc.sbox.GetImages(c.Param("name"))
+	images, err := rc.sbox.GetImages(c.Param("name"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

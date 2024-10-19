@@ -4,6 +4,7 @@ import (
 	"GoDockerSandbox/domain/model"
 	"GoDockerSandbox/domain/repo"
 	"GoDockerSandbox/domain/validation"
+	"context"
 	"fmt"
 	"os"
 )
@@ -22,12 +23,17 @@ func NewSandboxManager(composeRepo repo.ComposeRepo) *SandboxManager {
 	}
 }
 
-func (sm *SandboxManager) GetImages(sandboxName string) (err error, images []string) {
+func (sm *SandboxManager) GetImages(sandboxName string) (images []string, err error) {
 	err, _ = sm.v.ValidateSandboxName(sandboxName)
 	if err != nil {
-		return err, []string{}
+		return []string{}, err
 	}
-	return nil, sm.dim.GetImages()
+	images, err = sm.dim.GetImages(context.Background())
+	if err != nil {
+		return []string{}, err
+	}
+
+	return images, nil
 }
 
 func (sm *SandboxManager) SaveSandbox(name string, dockerServices []model.DockerService) (id string, err error) {
