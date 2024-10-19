@@ -72,21 +72,24 @@ func (dc *DockerClient) GetAllContainers(ctx context.Context) ([]string, error) 
 	return dc.getContainers(ctx, container.ListOptions{All: true})
 }
 
-func (dc *DockerClient) getNetworks() []string {
+func (dc *DockerClient) getNetworks() ([]string, error) {
 	netsSummary, err := dc.apiClient.NetworkList(context.Background(), network.ListOptions{})
 	if err != nil {
 		log.Printf("error getting networks: %s", err.Error())
-		return []string{}
+		return []string{}, err
 	}
 	nets := make([]string, 0, len(netsSummary))
 	for _, netSum := range netsSummary {
 		nets = append(nets, netSum.Name)
 	}
-	return nets
+	return nets, nil
 }
 
 func (dc *DockerClient) CreateNetwork(networkName string) (net string, err error) {
-	nets := dc.getNetworks()
+	nets, err := dc.getNetworks()
+	if err != nil {
+		return "", err
+	}
 	networkExist := slices.Contains(nets, networkName)
 	if networkExist {
 		log.Printf("network %s already exists", networkName)
