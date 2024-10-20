@@ -24,7 +24,7 @@ func NewSandboxManager(composeRepo repo.ComposeRepo) *SandboxManager {
 }
 
 func (sm *SandboxManager) GetImages(sandboxName string) (images []string, err error) {
-	err, _ = sm.v.ValidateSandboxName(sandboxName)
+	_, err = sm.v.ValidateSandboxName(sandboxName)
 	if err != nil {
 		return []string{}, err
 	}
@@ -96,7 +96,7 @@ func (sm *SandboxManager) GetRunningSandboxServices(ctx context.Context, id stri
 
 func (sm *SandboxManager) StopSandbox(id string) (err error) {
 	pwd, _ := os.Getwd()
-	filePath := fmt.Sprintf("%s/docker_sandboxes/%s", pwd, id)
+	filePath := fmt.Sprintf("%s/%s/%s", model.SandboxesDir, pwd, id)
 	composeAddr := fmt.Sprintf("%s/docker-compose.yaml", filePath)
 
 	err = sm.dcm.composeClient.StopDockerCompose(composeAddr)

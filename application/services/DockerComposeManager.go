@@ -49,7 +49,7 @@ func (dcm *DockerComposeManager) SaveCompose(compose model.Compose) (id string, 
 }
 
 func (dcm *DockerComposeManager) UpdateCompose(id string, yaml string) (string, error) {
-	err, composeUpd := dcm.yamlHelper.ParseYaml(id, yaml)
+	composeUpd, err := dcm.yamlHelper.ParseYaml(id, yaml)
 	if err != nil {
 		return id, err
 	}
@@ -58,7 +58,7 @@ func (dcm *DockerComposeManager) UpdateCompose(id string, yaml string) (string, 
 
 func (dcm *DockerComposeManager) createDockerComposeFile(compose model.Compose) (composeAddress string, err error) {
 	pwd, _ := os.Getwd()
-	filePath := fmt.Sprintf("%s/docker_sandboxes/%s", pwd, compose.Id)
+	filePath := fmt.Sprintf("%s/%s/%s", model.SandboxesDir, pwd, compose.Id)
 	if err = os.MkdirAll(filePath, 0755); err != nil {
 		log.Fatalf("error creating directory: %s", err.Error())
 		return
@@ -87,6 +87,7 @@ func (dcm *DockerComposeManager) RunDockerCompose(id string) (err error) {
 		log.Printf("error creating docker-compose.yaml: %s", err.Error())
 		return
 	}
+
 	return dcm.composeClient.RunDockerCompose(composeAddress, compose)
 }
 
