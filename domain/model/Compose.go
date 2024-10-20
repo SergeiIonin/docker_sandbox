@@ -1,5 +1,9 @@
 package model
 
+const (
+	SandboxesDir = "docker_sandboxes"
+)
+
 type Compose struct {
 	Id          string   `json:"id"`
 	Name        string   `json:"name"`
