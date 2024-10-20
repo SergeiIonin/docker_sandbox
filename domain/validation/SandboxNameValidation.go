@@ -2,6 +2,7 @@ package validation
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"regexp"
 
@@ -16,7 +17,7 @@ func NewSandboxNameValidation() *SandboxNameValidation {
 }
 
 // validates the sandbox name. It should start with a letter, contain only letters, numbers, and underscores
-func (snv *SandboxNameValidation) ValidateSandboxName(input string) (err error, value string) {
+func (snv *SandboxNameValidation) ValidateSandboxName(input string) (value string, err error) {
 	validate := validator.New()
 	regErr := validate.RegisterValidation("valid_sandbox_name", func(fl validator.FieldLevel) bool {
 		name := fl.Field().String()
@@ -28,11 +29,12 @@ func (snv *SandboxNameValidation) ValidateSandboxName(input string) (err error, 
 	})
 	if regErr != nil {
 		log.Printf("error registering validation: %v", regErr)
-		panic(regErr)
+		return "", fmt.Errorf("error registering validation. %w", regErr)
 	}
 	if err := validate.Var(input, "valid_sandbox_name"); err != nil {
 		log.Printf("error validating sandbox name: %v", err)
-		return errors.New("Invalid sandbox name"), ""
+		return "", errors.New("invalid sandbox name")
 	}
-	return nil, input
+
+	return input, nil
 }

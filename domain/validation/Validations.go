@@ -10,6 +10,6 @@ func NewValidations() *Validations {
 	}
 }
 
-func (v *Validations) ValidateSandboxName(input string) (err error, value string) {
+func (v *Validations) ValidateSandboxName(input string) (value string, err error) {
 	return v.SandboxNameValidation.ValidateSandboxName(input)
 }
