@@ -9,9 +9,11 @@ import (
 type DockerComposeYamlHelper struct {
 }
 
-const indent2 = "  "
-const indent4 = indent2 + indent2
-const indent6 = indent4 + indent2
+const (
+	indent2 = "  "
+	indent4 = indent2 + indent2
+	indent6 = indent4 + indent2
+)
 
 func NewDockerComposeHelper() *DockerComposeYamlHelper {
 	return &DockerComposeYamlHelper{}
