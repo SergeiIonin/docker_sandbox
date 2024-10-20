@@ -100,7 +100,7 @@ func (dcyh *DockerComposeYamlHelper) BuildComposeYaml(services []model.DockerSer
 	return composeYaml
 }
 
-func (dcyh *DockerComposeYamlHelper) ParseYaml(id string, composeYaml string) (err error, compose model.Compose) {
+func (dcyh *DockerComposeYamlHelper) ParseYaml(id string, composeYaml string) (compose model.Compose, err error) {
 	var compRaw composeRaw
 	err = yaml.Unmarshal([]byte(composeYaml), &compRaw)
 

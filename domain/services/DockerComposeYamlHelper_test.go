@@ -75,7 +75,7 @@ networks:
 		t.Errorf("got:\n%s\nwant:\n%s", composeYaml, testYaml)
 	}
 
-	err, composeFromYaml := dcyh.ParseYaml("test", testYaml)
+	composeFromYaml, err := dcyh.ParseYaml("test", testYaml)
 	t.Logf("Compose from yaml: %v\n", composeFromYaml)
 	testUtils.CompareSlices(composeFromYaml.Services, []string{"test_service_0", "test_service_1"}, true, t)
 	if err != nil {
