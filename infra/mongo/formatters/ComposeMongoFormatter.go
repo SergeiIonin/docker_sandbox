@@ -13,7 +13,7 @@ func NewComposeMongoFormatter() *ComposeMongoFormatter {
 	return &ComposeMongoFormatter{}
 }
 
-func (fmtr *ComposeMongoFormatter) FormatCompose(compose model.Compose) interface{} {
+func (fmtr *ComposeMongoFormatter) FormatCompose(compose model.Compose) any {
 	doc := bson.M{
 		"id":          compose.Id,
 		"name":        compose.Name,
@@ -26,8 +26,8 @@ func (fmtr *ComposeMongoFormatter) FormatCompose(compose model.Compose) interfac
 	return doc
 }
 
-func (fmtr *ComposeMongoFormatter) FormatComposes(composes []model.Compose) []interface{} {
-	docs := make([]interface{}, 0, len(composes))
+func (fmtr *ComposeMongoFormatter) FormatComposes(composes []model.Compose) []any {
+	docs := make([]any, 0, len(composes))
 	for _, compose := range composes {
 		docs = append(docs, fmtr.FormatCompose(compose))
 	}
