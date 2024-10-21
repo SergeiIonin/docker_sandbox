@@ -1,0 +1,4 @@
+mongo:
+  uri: "mongodb://localhost:2717"
+  database: "docker_sandbox"
+  collection: "composes"
