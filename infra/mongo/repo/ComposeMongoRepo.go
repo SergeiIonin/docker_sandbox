@@ -20,7 +20,7 @@ type ComposeMongoRepo struct {
 	formatter  *formatters.ComposeMongoFormatter
 }
 
-func NewComposeMongoRepo(uri string) (*ComposeMongoRepo, error) {
+func NewComposeMongoRepo(uri, dbName, collName string) (*ComposeMongoRepo, error) {
 	clientOptions := options.Client().ApplyURI(uri)
 
 	client, err := mongo.Connect(context.Background(), clientOptions)
@@ -35,8 +35,8 @@ func NewComposeMongoRepo(uri string) (*ComposeMongoRepo, error) {
 		return nil, err
 	}
 
-	database := client.Database("docker_sandbox")
-	collection := database.Collection("composes")
+	database := client.Database(dbName)
+	collection := database.Collection(collName)
 	fmtr := formatters.NewComposeMongoFormatter()
 
 	return &ComposeMongoRepo{

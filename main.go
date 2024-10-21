@@ -9,11 +9,22 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 )
 
 func main() {
-	mongoUri := "mongodb://localhost:2717"
-	composeRepo, err := repo.NewComposeMongoRepo(mongoUri)
+	viper.SetConfigName("app")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath("configs")
+
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("Error reading config file: %v", err)
+	}
+	mongoUri := viper.GetString("mongo.uri")
+	db := viper.GetString("mongo.database")
+	collName := viper.GetString("mongo.collection")
+
+	composeRepo, err := repo.NewComposeMongoRepo(mongoUri, db, collName)
 	if err != nil {
 		panic(err) // fixme
 	}
@@ -38,6 +49,6 @@ func main() {
 
 	err = router.Run("localhost:8082")
 	if err != nil {
-    	log.Fatalf("Failed to run server: %v", err)
+		log.Fatalf("Failed to run server: %v", err)
 	}
 }
