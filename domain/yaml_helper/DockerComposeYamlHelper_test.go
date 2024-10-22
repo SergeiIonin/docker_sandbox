@@ -1,4 +1,4 @@
-package services
+package yaml_helper
 
 import (
 	"GoDockerSandbox/domain/model"
@@ -8,7 +8,6 @@ import (
 
 func TestDockerComposeYamlHelper(t *testing.T) {
 	testUtils := test_utils.NewTestUtils()
-	dcyh := NewDockerComposeHelper()
 
 	service_0 := model.DockerService{
 		Id:        "test_service_0",
@@ -37,7 +36,7 @@ func TestDockerComposeYamlHelper(t *testing.T) {
 
 	services := []model.DockerService{service_0, service_1}
 
-	composeYaml := dcyh.BuildComposeYaml(services)
+	composeYaml := BuildComposeYaml(services)
 
 	testYaml := `
 version: '3.8'
@@ -75,7 +74,7 @@ networks:
 		t.Errorf("got:\n%s\nwant:\n%s", composeYaml, testYaml)
 	}
 
-	composeFromYaml, err := dcyh.ParseYaml("test", testYaml)
+	composeFromYaml, err := ParseYaml("test", testYaml)
 	t.Logf("Compose from yaml: %v\n", composeFromYaml)
 	testUtils.CompareSlices(composeFromYaml.Services, []string{"test_service_0", "test_service_1"}, true, t)
 	if err != nil {

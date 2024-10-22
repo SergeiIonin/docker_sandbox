@@ -5,7 +5,7 @@ import (
 
 	"GoDockerSandbox/domain/model"
 	"GoDockerSandbox/domain/repo"
-	"GoDockerSandbox/domain/services"
+	"GoDockerSandbox/domain/yaml_helper"
 	"GoDockerSandbox/infra/clients/docker_compose"
 	"log"
 	"strings"
@@ -13,21 +13,19 @@ import (
 
 type DockerComposeManager struct {
 	composeRepo   repo.ComposeRepo
-	yamlHelper    *services.DockerComposeYamlHelper
 	composeClient *docker_compose.DockerComposeClient
 }
 
 func NewDockerComposeManager(repo repo.ComposeRepo) *DockerComposeManager {
 	return &DockerComposeManager{
 		composeRepo:   repo,
-		yamlHelper:    services.NewDockerComposeHelper(),
 		composeClient: docker_compose.NewDockerComposeClient(),
 	}
 }
 
 func (dcm *DockerComposeManager) BuildComposeYaml(services []model.DockerService) (yaml string) {
 	//_ = dcm.sanitizeImages(services) // todo
-	yaml = dcm.yamlHelper.BuildComposeYaml(services)
+	yaml = yaml_helper.BuildComposeYaml(services)
 	return
 }
 
@@ -47,7 +45,7 @@ func (dcm *DockerComposeManager) SaveCompose(compose model.Compose) (id string, 
 }
 
 func (dcm *DockerComposeManager) UpdateCompose(id string, yaml string) (string, error) {
-	composeUpd, err := dcm.yamlHelper.ParseYaml(id, yaml)
+	composeUpd, err := yaml_helper.ParseYaml(id, yaml)
 	if err != nil {
 		return id, err
 	}
