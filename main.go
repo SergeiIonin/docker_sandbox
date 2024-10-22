@@ -26,7 +26,7 @@ func main() {
 
 	composeRepo, err := repo.NewComposeMongoRepo(mongoUri, db, collName)
 	if err != nil {
-		panic(err) // fixme
+		log.Fatalf("Failed to initialize ComposeMongoRepo: %v", err)
 	}
 	sbox := services.NewSandboxManager(composeRepo)
 	rc := controllers.NewRestController(sbox)
