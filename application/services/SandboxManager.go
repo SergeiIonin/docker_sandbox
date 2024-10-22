@@ -99,6 +99,6 @@ func (sm *SandboxManager) StopSandbox(id string) (err error) {
 	filePath := fmt.Sprintf("%s/%s/%s", model.SandboxesDir, pwd, id)
 	composeAddr := fmt.Sprintf("%s/docker-compose.yaml", filePath)
 
-	err = sm.dcm.composeClient.StopDockerCompose(composeAddr)
+	err = sm.dcm.StopDockerCompose(composeAddr)
 	return
 }
