@@ -38,6 +38,8 @@ func TestDockerComposeManager_Save(t *testing.T) {
 
 	mongoPort := 2727
 	mongoUri := fmt.Sprintf("mongodb://localhost:%d", mongoPort)
+	dbName := "test"
+	collName := "composes"
 
 	err = mongoCompose.WaitForService("mongo_test", wait.ForListeningPort("27017").WithStartupTimeout(30*time.Second)).Up(context.Background(), tc.Wait(true))
 
@@ -45,7 +47,7 @@ func TestDockerComposeManager_Save(t *testing.T) {
 		t.Fatal("Mongo is not accessible: ", err)
 	}
 
-	repo, err := repo.NewComposeMongoRepo(mongoUri)
+	repo, err := repo.NewComposeMongoRepo(mongoUri, dbName, collName)
 	if err != nil {
 		t.Fatalf("Failed to initialize ComposeMongoRepo: %v", err)
 	}

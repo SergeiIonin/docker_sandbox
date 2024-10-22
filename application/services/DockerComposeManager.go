@@ -7,9 +7,7 @@ import (
 	"GoDockerSandbox/domain/repo"
 	"GoDockerSandbox/domain/services"
 	"GoDockerSandbox/infra/clients/docker_compose"
-	"fmt"
 	"log"
-	"os"
 	"strings"
 )
 
@@ -56,39 +54,23 @@ func (dcm *DockerComposeManager) UpdateCompose(id string, yaml string) (string, 
 	return dcm.composeRepo.Upsert(composeUpd)
 }
 
-func (dcm *DockerComposeManager) createDockerComposeFile(compose model.Compose) (composeAddress string, err error) {
-	pwd, _ := os.Getwd()
-	filePath := fmt.Sprintf("%s/%s/%s", model.SandboxesDir, pwd, compose.Id)
-	if err = os.MkdirAll(filePath, 0755); err != nil {
-		log.Fatalf("error creating directory: %s", err.Error())
-		return
-	}
-	composeAddress = fmt.Sprintf("%s/docker-compose.yaml", filePath)
-
-	yaml := compose.Yaml
-
-	err = os.WriteFile(composeAddress, []byte(yaml), 0755)
-	if err != nil {
-		log.Fatalf("error creating docker-compose.yaml: %s", err.Error())
-		return
-	}
-
-	return composeAddress, nil
-}
-
 func (dcm *DockerComposeManager) RunDockerCompose(id string) (err error) {
 	compose, err := dcm.composeRepo.Get(id)
 	if err != nil {
 		log.Printf("error getting compose: %s", err.Error())
 		return
 	}
-	composeAddress, err := dcm.createDockerComposeFile(compose)
+	composeAddress, err := dcm.composeClient.CreateDockerComposeFile(compose)
 	if err != nil {
 		log.Printf("error creating docker-compose.yaml: %s", err.Error())
 		return
 	}
 
 	return dcm.composeClient.RunDockerCompose(composeAddress, compose)
+}
+
+func (dcm *DockerComposeManager) StopDockerCompose(filePath string) (err error) {
+	return dcm.composeClient.StopDockerCompose(filePath)
 }
 
 func (dcm *DockerComposeManager) GetRunningComposeServices(ctx context.Context, id string) ([]string, error) {
