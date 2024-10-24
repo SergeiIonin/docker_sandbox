@@ -20,11 +20,10 @@ func TestDockerClientNew(t *testing.T) {
 }
 
 var _ = Describe("DockerClient", func() {
-	dockerClient := NewDockerClient()
 
 	Describe("GetImages", func() {
 		It("should return a list of images", func() {
-			images, err := dockerClient.GetImages(context.Background())
+			images, err := GetImages(context.Background())
 			for _, image := range images {
 				log.Printf("image: %s\n", image)
 			}
@@ -33,7 +32,7 @@ var _ = Describe("DockerClient", func() {
 		})
 
 		It("should return a list of images matching some name", func() {
-			images, err := dockerClient.GetImagesByName(context.Background(), "mongo")
+			images, err := GetImagesByName(context.Background(), "mongo")
 			for _, image := range images {
 				log.Printf("image: %s\n", image)
 			}
@@ -67,7 +66,7 @@ var _ = Describe("DockerClient", func() {
 		})
 
 		It("should return a list of running containers", func() {
-			containers, err := dockerClient.GetRunningContainers(context.Background())
+			containers, err := GetRunningContainers(context.Background())
 			for _, container := range containers {
 				log.Printf("container: %s\n", container)
 			}

@@ -13,23 +13,22 @@ import (
 	"github.com/docker/docker/client"
 )
 
-type DockerClient struct {
-	apiClient *client.Client
-}
+var apiClient *client.Client
 
-func NewDockerClient() *DockerClient {
-	dockerClient, err := client.NewClientWithOpts(client.WithVersion("1.45"))
+func CreateDockerApiClient(version string) (err error) {
+	if version == "" {
+		version = "1.45"
+	}
+	apiClient, err = client.NewClientWithOpts(client.WithVersion(version))
 	if err != nil {
 		log.Printf("error creating docker client: %s", err.Error())
-		panic(err)
+		return err
 	}
-	return &DockerClient{
-		apiClient: dockerClient,
-	}
+	return nil
 }
 
-func (dc *DockerClient) GetImages(ctx context.Context) ([]string, error) {
-	summaries, err := dc.apiClient.ImageList(ctx, image.ListOptions{})
+func GetImages(ctx context.Context) ([]string, error) {
+	summaries, err := apiClient.ImageList(ctx, image.ListOptions{})
 	if err != nil {
 		log.Printf("failed to fetch images. %s\n", err.Error())
 		return nil, err
@@ -45,8 +44,8 @@ func (dc *DockerClient) GetImages(ctx context.Context) ([]string, error) {
 	return images, nil
 }
 
-func (dc *DockerClient) GetImagesByName(ctx context.Context, name string) ([]string, error) {
-	images, err := dc.GetImages(ctx)
+func GetImagesByName(ctx context.Context, name string) ([]string, error) {
+	images, err := GetImages(ctx)
 	if err != nil {
 		return []string{}, err
 	}
@@ -64,16 +63,16 @@ func (dc *DockerClient) GetImagesByName(ctx context.Context, name string) ([]str
 	return filteredImages, nil
 }
 
-func (dc *DockerClient) GetRunningContainers(ctx context.Context) ([]string, error) {
-	return dc.getContainers(ctx, container.ListOptions{})
+func GetRunningContainers(ctx context.Context) ([]string, error) {
+	return getContainers(ctx, container.ListOptions{})
 }
 
-func (dc *DockerClient) GetAllContainers(ctx context.Context) ([]string, error) {
-	return dc.getContainers(ctx, container.ListOptions{All: true})
+func GetAllContainers(ctx context.Context) ([]string, error) {
+	return getContainers(ctx, container.ListOptions{All: true})
 }
 
-func (dc *DockerClient) getNetworks() ([]string, error) {
-	netsSummary, err := dc.apiClient.NetworkList(context.Background(), network.ListOptions{})
+func getNetworks() ([]string, error) {
+	netsSummary, err := apiClient.NetworkList(context.Background(), network.ListOptions{})
 	if err != nil {
 		log.Printf("error getting networks: %s", err.Error())
 		return []string{}, err
@@ -85,8 +84,8 @@ func (dc *DockerClient) getNetworks() ([]string, error) {
 	return nets, nil
 }
 
-func (dc *DockerClient) CreateNetwork(networkName string) (net string, err error) {
-	nets, err := dc.getNetworks()
+func CreateNetwork(networkName string) (net string, err error) {
+	nets, err := getNetworks()
 	if err != nil {
 		return "", err
 	}
@@ -95,7 +94,7 @@ func (dc *DockerClient) CreateNetwork(networkName string) (net string, err error
 		log.Printf("network %s already exists", networkName)
 		return networkName, nil
 	}
-	_, err = dc.apiClient.NetworkCreate(context.Background(), networkName, network.CreateOptions{Driver: "bridge", Scope: "local", Internal: false})
+	_, err = apiClient.NetworkCreate(context.Background(), networkName, network.CreateOptions{Driver: "bridge", Scope: "local", Internal: false})
 	if err != nil {
 		log.Printf("error creating network: %s", err.Error())
 		return "", err
@@ -103,8 +102,8 @@ func (dc *DockerClient) CreateNetwork(networkName string) (net string, err error
 	return networkName, nil
 }
 
-func (dc *DockerClient) getContainers(ctx context.Context, opts container.ListOptions) ([]string, error) {
-	containers, err := dc.apiClient.ContainerList(ctx, opts)
+func getContainers(ctx context.Context, opts container.ListOptions) ([]string, error) {
+	containers, err := apiClient.ContainerList(ctx, opts)
 	if err != nil {
 		log.Printf("error getting containers: %s", err.Error())
 		return []string{}, err
