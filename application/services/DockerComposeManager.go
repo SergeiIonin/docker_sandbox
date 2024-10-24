@@ -13,13 +13,11 @@ import (
 
 type DockerComposeManager struct {
 	composeRepo   repo.ComposeRepo
-	composeClient *docker_compose.DockerComposeClient
 }
 
 func NewDockerComposeManager(repo repo.ComposeRepo) *DockerComposeManager {
 	return &DockerComposeManager{
 		composeRepo:   repo,
-		composeClient: docker_compose.NewDockerComposeClient(),
 	}
 }
 
@@ -58,21 +56,21 @@ func (dcm *DockerComposeManager) RunDockerCompose(id string) (err error) {
 		log.Printf("error getting compose: %s", err.Error())
 		return
 	}
-	composeAddress, err := dcm.composeClient.CreateDockerComposeFile(compose)
+	composeAddress, err := docker_compose.CreateDockerComposeFile(compose)
 	if err != nil {
 		log.Printf("error creating docker-compose.yaml: %s", err.Error())
 		return
 	}
 
-	return dcm.composeClient.RunDockerCompose(composeAddress, compose)
+	return docker_compose.RunDockerCompose(composeAddress, compose)
 }
 
 func (dcm *DockerComposeManager) StopDockerCompose(filePath string) (err error) {
-	return dcm.composeClient.StopDockerCompose(filePath)
+	return docker_compose.StopDockerCompose(filePath)
 }
 
 func (dcm *DockerComposeManager) GetRunningComposeServices(ctx context.Context, id string) ([]string, error) {
-	containers, err := dcm.composeClient.GetRunningContainers(ctx)
+	containers, err := docker_compose.GetRunningContainers(ctx)
 	if err != nil {
 		log.Printf("error getting running containers: %s", err.Error())
 		return []string{}, nil

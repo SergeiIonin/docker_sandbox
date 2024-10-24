@@ -4,20 +4,20 @@ import (
 	"GoDockerSandbox/domain/model"
 	"GoDockerSandbox/domain/repo"
 	"GoDockerSandbox/domain/validation"
+	"GoDockerSandbox/infra/clients/docker"
+
 	"context"
 	"fmt"
 	"os"
 )
 
 type SandboxManager struct {
-	dim *DockerImageManager
 	dcm *DockerComposeManager
 	v   *validation.Validations
 }
 
 func NewSandboxManager(composeRepo repo.ComposeRepo) *SandboxManager {
 	return &SandboxManager{
-		dim: NewDockerImageManager(),
 		dcm: NewDockerComposeManager(composeRepo),
 		v:   validation.NewValidations(),
 	}
@@ -28,7 +28,7 @@ func (sm *SandboxManager) GetImages(sandboxName string) (images []string, err er
 	if err != nil {
 		return []string{}, err
 	}
-	images, err = sm.dim.GetImages(context.Background())
+	images, err = docker.GetImages(context.Background())
 	if err != nil {
 		return []string{}, err
 	}
