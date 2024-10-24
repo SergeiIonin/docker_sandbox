@@ -2,6 +2,7 @@ package main
 
 import (
 	"GoDockerSandbox/application/services"
+	"GoDockerSandbox/infra/clients/docker"
 	"GoDockerSandbox/infra/mongo/repo"
 	"GoDockerSandbox/web/controllers"
 
@@ -28,6 +29,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to initialize ComposeMongoRepo: %v", err)
 	}
+
+	err = docker.CreateDockerApiClient("1.45")
+	if err != nil {
+		log.Fatalf("Failed to create docker client: %v", err)
+	}
+
 	sbox := services.NewSandboxManager(composeRepo)
 	rc := controllers.NewRestController(sbox)
 	router := gin.Default()
