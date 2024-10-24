@@ -11,21 +11,10 @@ import (
 	"os/exec"
 )
 
-type DockerComposeClient struct {
-	dc *docker.DockerClient
-}
-
-func NewDockerComposeClient() *DockerComposeClient {
-	dc := docker.NewDockerClient()
-	return &DockerComposeClient{
-		dc: dc,
-	}
-}
-
-func (dcc *DockerComposeClient) createNetworks(compose model.Compose) (err error) {
+func createNetworks(compose model.Compose) (err error) {
 	nets := compose.Networks
 	for _, net := range nets {
-		_, err = dcc.dc.CreateNetwork(net)
+		_, err = docker.CreateNetwork(net)
 		if err != nil {
 			return
 		}
@@ -33,7 +22,7 @@ func (dcc *DockerComposeClient) createNetworks(compose model.Compose) (err error
 	return nil
 }
 
-func (dcm *DockerComposeClient) CreateDockerComposeFile(compose model.Compose) (composeAddress string, err error) {
+func CreateDockerComposeFile(compose model.Compose) (composeAddress string, err error) {
 	pwd, _ := os.Getwd()
 	filePath := fmt.Sprintf("%s/%s/%s", model.SandboxesDir, pwd, compose.Id)
 	if err = os.MkdirAll(filePath, 0755); err != nil {
@@ -53,8 +42,8 @@ func (dcm *DockerComposeClient) CreateDockerComposeFile(compose model.Compose) (
 	return composeAddress, nil
 }
 
-func (dcc *DockerComposeClient) RunDockerCompose(composeAddress string, compose model.Compose) (err error) {
-	if err = dcc.createNetworks(compose); err != nil {
+func RunDockerCompose(composeAddress string, compose model.Compose) (err error) {
+	if err = createNetworks(compose); err != nil {
 		log.Printf("Error creating networks: %v", err)
 		return
 	}
@@ -69,7 +58,7 @@ func (dcc *DockerComposeClient) RunDockerCompose(composeAddress string, compose 
 	return nil
 }
 
-func (dcc *DockerComposeClient) StopDockerCompose(filePath string) error {
+func StopDockerCompose(filePath string) error {
 	cmd := exec.Command("docker-compose", "-f", filePath, "down")
 	err := cmd.Run()
 	if err != nil {
@@ -79,6 +68,6 @@ func (dcc *DockerComposeClient) StopDockerCompose(filePath string) error {
 	return nil
 }
 
-func (dcc *DockerComposeClient) GetRunningContainers(ctx context.Context) ([]string, error) {
-	return dcc.dc.GetRunningContainers(ctx)
+func GetRunningContainers(ctx context.Context) ([]string, error) {
+	return docker.GetRunningContainers(ctx)
 }
