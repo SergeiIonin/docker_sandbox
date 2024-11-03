@@ -5,13 +5,13 @@ import (
 	"GoDockerSandbox/domain/model"
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type RestController struct {
-	//tpl      *template.Template
 	sbox *services.SandboxManager
 }
 
@@ -51,9 +51,9 @@ func (rc *RestController) CreateCompose(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	fmt.Println("Creating compose file for images:")
+	log.Println("Creating compose file for images:")
 	for _, image := range rawCompose.Services {
-		fmt.Println(image)
+		log.Println(image)
 	}
 	id, err := rc.sbox.SaveSandbox(rawCompose.Id, rawCompose.Services)
 	if err != nil {

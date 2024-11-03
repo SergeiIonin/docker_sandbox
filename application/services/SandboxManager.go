@@ -7,7 +7,7 @@ import (
 	"GoDockerSandbox/infra/clients/docker"
 
 	"context"
-	"fmt"
+	"log"
 	"os"
 )
 
@@ -37,7 +37,7 @@ func (sm *SandboxManager) GetImages(sandboxName string) (images []string, err er
 }
 
 func (sm *SandboxManager) SaveSandbox(name string, dockerServices []model.DockerService) (id string, err error) {
-	fmt.Printf("%v\n", dockerServices)
+	log.Printf("%v\n", dockerServices)
 	services := make([]string, 0, len(dockerServices))
 	appImageIds := make([]string, 0, len(dockerServices))
 	infraImageIds := make([]string, 0, len(dockerServices))
