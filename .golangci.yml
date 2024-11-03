@@ -1,0 +1,75 @@
+# Enables all linters and then disables specific ones selectively.
+linters:
+  enable-all: true
+  disable:
+    - godox # Disable "TODO" comments warnings.
+    - dupl # Duplicate code finder (optional)
+    - gocyclo # Cyclomatic complexity checker (optional)
+    - wsl # Whitespace linter (optional)
+
+# Set specific settings for each linter
+linters-settings:
+  govet:
+    # Enable some optional checks for govet
+    enable:
+      - appends
+      - asmdecl
+      - assign
+      - atomic
+      - atomicalign
+      - bools
+      - buildtag
+      - cgocall
+      - composites
+      - copylocks
+      - deepequalerrors
+      - defers
+      - directive
+      - errorsas
+      - fieldalignment
+      - findcall
+      - framepointer
+      - httpresponse
+      - ifaceassert
+      - loopclosure
+      - lostcancel
+      - nilfunc
+      - nilness
+      - printf
+      - reflectvaluecompare
+      - shadow
+      - shift
+      - sigchanyzer
+      - slog
+      - sortslice
+      - stdmethods
+      - stringintconv
+      - structtag
+      - testinggoroutine
+      - tests
+      - unmarshal
+      - unreachable
+      - unsafeptr
+      - unusedresult
+      - unusedwrite
+  errcheck:
+    # Check for unchecked errors
+    check-type-assertions: true
+  exhaustruct:
+    # Exclude specific structs from exhaustiveness checks
+    exclude:
+      - "cobra.Command$"
+
+# Customize output settings
+# output:
+#  format: colored-line-number
+#  sort-results: true
+
+# Custom error severity levels
+issues:
+  max-issues-per-linter: 100
+  max-same-issues: 3
+
+run:
+  timeout: 3m # Set a reasonable timeout to prevent slowdowns
+
